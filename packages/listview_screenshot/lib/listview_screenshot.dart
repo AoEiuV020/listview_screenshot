@@ -23,6 +23,12 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
   WidgetShotRenderRepaintBoundary(this.context);
 
+  /// 长截图，边滚动边截图，最后拼接压缩，
+  /// 
+  /// [scrollController] 属于滚动控件的控制器，
+  /// [maxHeight] 粗略的限高，不完全靠谱，
+  /// [backgroundColor] 背景色，
+  /// [quality] 0-100, 0和100是无损，
   Future<Uint8List?> screenshot({
     ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
@@ -35,7 +41,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       quality = 100;
     }
     if (quality < 0) {
-      quality = 10;
+      quality = 0;
     }
     Uint8List? resultImage;
 
