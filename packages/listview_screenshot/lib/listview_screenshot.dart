@@ -220,7 +220,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   Future<void> scrollTo(
       ScrollController scrollController, double offset) async {
     scrollController.jumpTo(offset);
-    await Future.delayed(const Duration(milliseconds: 35));
+    await Future.delayed(const Duration(milliseconds: 100));
   }
 
   Future<image.Image> _merge(bool canScroll, MergeParam mergeParam) async {
@@ -238,6 +238,10 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       var offsetY = param.dy;
       for (var y = 0; y < currentHeight; y++) {
         var realY = offsetY + y;
+        if (realY >= resultImage.height) {
+          // 以防万一，web端比较卡的时候有出现，
+          break;
+        }
         for (var i = 0; i < width; i++) {
           resultImage.setPixel(i, realY,
               blendColors(backgroundColor, currentImage.getPixel(i, y)));
