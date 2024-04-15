@@ -23,28 +23,58 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
   WidgetShotRenderRepaintBoundary(this.context);
 
-  /// 长截图，边滚动边截图，最后拼接压缩，
-  ///
-  /// [scrollController] 属于滚动控件的控制器，
-  /// [maxHeight] 粗略的限高，不完全靠谱，
-  /// [backgroundColor] 背景色，
-  /// [quality] 0-100, 0和100是无损，
-  Future<Uint8List?> screenshot({
+  /// 长截图，边滚动边截图，最后拼接压缩，成png格式的二进制数据，
+  Future<Uint8List?> screenshotPng({
     ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
     double pixelRatio = 1.0,
     Color? backgroundColor,
-    int quality = 100,
   }) async {
-    if (quality > 100) {
-      quality = 100;
-    }
-    if (quality < 0) {
-      quality = 0;
-    }
-    Uint8List? resultImage;
+    var resultImage = await screenshot(
+      scrollController: scrollController,
+      extraImage: extraImage,
+      maxHeight: maxHeight,
+      pixelRatio: pixelRatio,
+      backgroundColor: backgroundColor,
+    );
+    // level是压缩率，level越大文件越小速度越慢，不影响图像质量，0是不压缩，
+    // 参考 [deflate](https://github.com/brendan-duncan/archive/blob/main/lib/src/zlib/deflate.dart)
+    return image.encodePng(resultImage, level: 1);
+  }
 
+  /// 长截图，边滚动边截图，最后拼接压缩，成jpg格式的二进制数据，
+  /// [quality] jpg图片质量，1-100，
+  Future<Uint8List?> screenshotJpg({
+    ScrollController? scrollController,
+    List<ImageParam> extraImage = const [],
+    int? maxHeight,
+    double pixelRatio = 1.0,
+    Color? backgroundColor,
+    int quality = 90,
+  }) async {
+    var resultImage = await screenshot(
+      scrollController: scrollController,
+      extraImage: extraImage,
+      maxHeight: maxHeight,
+      pixelRatio: pixelRatio,
+      backgroundColor: backgroundColor,
+    );
+    return image.encodeJpg(resultImage, quality: quality);
+  }
+
+  /// 长截图，边滚动边截图，最后拼接压缩，
+  ///
+  /// [scrollController] 属于滚动控件的控制器，
+  /// [maxHeight] 粗略的限高，不完全靠谱，
+  /// [backgroundColor] 背景色，
+  Future<image.Image> screenshot({
+    ScrollController? scrollController,
+    List<ImageParam> extraImage = const [],
+    int? maxHeight,
+    double pixelRatio = 1.0,
+    Color? backgroundColor,
+  }) async {
     int sHeight =
         (scrollController?.position.viewportDimension ?? size.height).toInt();
 
@@ -182,12 +212,9 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         color: backgroundColor,
         width: rWidth,
         height: imageHeight,
-        quality: quality,
         imageParams: imageParams);
 
-    resultImage = await _merge(canScroll, mergeParam);
-
-    return resultImage;
+    return _merge(canScroll, mergeParam);
   }
 
   Future<void> scrollTo(
@@ -196,7 +223,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     await Future.delayed(const Duration(milliseconds: 35));
   }
 
-  Future<Uint8List?> _merge(bool canScroll, MergeParam mergeParam) async {
+  Future<image.Image> _merge(bool canScroll, MergeParam mergeParam) async {
     var width = mergeParam.width;
     var resultImage =
         image.Image(width: width, height: mergeParam.height, numChannels: 4);
@@ -217,13 +244,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         }
       }
     }
-    int level;
-    if (mergeParam.quality == 100) {
-      level = 0;
-    } else {
-      level = mergeParam.quality ~/ 10;
-    }
-    return image.encodePng(resultImage, level: level);
+    return resultImage;
   }
 
   image.Color blendColors(

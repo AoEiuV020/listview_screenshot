@@ -5,14 +5,12 @@ class MergeParam {
   final ui.Color? color;
   final int width;
   final int height;
-  final int quality;
   final List<ImageParam> imageParams;
 
   MergeParam(
       {required this.color,
       required this.width,
       required this.height,
-      required this.quality,
       required this.imageParams});
 }
 
