@@ -3,4 +3,4 @@
 
 . $script_dir/prepare_melos.sh
 cd "$ROOT"
-melos run analyze
+melos run test
