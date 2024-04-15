@@ -1,0 +1,8 @@
+name: listview_screenshot_workspace
+publish_to: none
+
+environment:
+  sdk: '>=3.3.3 <4.0.0'
+
+dev_dependencies:
+  melos: ^5.3.0
