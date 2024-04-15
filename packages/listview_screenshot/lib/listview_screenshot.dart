@@ -108,7 +108,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         double lastImageHeight = 0;
 
         if (_canScroll(scrollController)) {
-          double scrollHeight = scrollController.offset + sHeight / 10;
+          int scrollHeight = scrollController.offset.toInt() + sHeight;
 
           if (scrollHeight > sHeight * i) {
             await scrollTo(scrollController, (sHeight * i).toDouble());
@@ -144,7 +144,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
             ));
             imageHeight += (lastImageHeight * pixelRatio).toInt();
           } else {
-            await scrollTo(scrollController, scrollHeight);
+            await scrollTo(scrollController, scrollHeight.toDouble());
           }
         } else {
           break;
