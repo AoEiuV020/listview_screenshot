@@ -7,4 +7,4 @@ if [ ! -d "$apps_dir" ]; then
     mkdir -p "$apps_dir"
 fi
 cd "$apps_dir"
-flutter create --org "$organization" --project-name "$app_name" "$app_name"
+flutter create --template skeleton --org "$organization" --project-name "$app_name" "$app_name"
