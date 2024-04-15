@@ -9,10 +9,14 @@ import 'sample_item_details_view.dart';
 
 /// Displays a list of SampleItems.
 class SampleItemListView extends StatelessWidget {
-  SampleItemListView({
-    super.key,
-    this.items = const [SampleItem(1), SampleItem(2), SampleItem(3)],
+  SampleItemListView._({
+    required this.items,
   });
+
+  factory SampleItemListView() {
+    var items = List.generate(111, (index) => SampleItem(index));
+    return SampleItemListView._(items: items);
+  }
 
   static const routeName = '/';
 
