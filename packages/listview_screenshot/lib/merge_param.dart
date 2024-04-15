@@ -1,9 +1,8 @@
-import 'dart:typed_data';
-
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as ui;
+import 'package:image/image.dart' as img;
 
 class MergeParam {
-  final Color? color;
+  final ui.Color? color;
   final int width;
   final int height;
   final int quality;
@@ -18,7 +17,7 @@ class MergeParam {
 }
 
 class ImageParam {
-  final Uint8List image;
+  final img.Image image;
   final int dx;
   final int dy;
   final int width;

@@ -114,7 +114,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
             await scrollTo(scrollController, (sHeight * i).toDouble());
             i++;
 
-            Uint8List image = await _screenshot(pixelRatio);
+            var image = await _screenshot(pixelRatio);
 
             imageParams.add(ImageParam(
               image: image,
@@ -132,7 +132,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
             await scrollTo(
                 scrollController, scrollController.position.maxScrollExtent);
 
-            Uint8List lastImage = await _screenshot(pixelRatio);
+            var lastImage = await _screenshot(pixelRatio);
 
             imageParams.add(ImageParam(
               image: lastImage,
@@ -206,7 +206,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       backgroundColor = image.ColorRgba8(c.red, c.green, c.blue, c.alpha);
     }
     for (var param in mergeParam.imageParams) {
-      var currentImage = image.decodePng(param.image)!;
+      var currentImage = param.image;
       var currentHeight = param.height;
       var offsetY = param.dy;
       for (var y = 0; y < currentHeight; y++) {
@@ -257,11 +257,35 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         scrollController.position.physics.tolerance.distance);
   }
 
-  Future<Uint8List> _screenshot(double pixelRatio) async {
-    ui.Image image = await toImage(pixelRatio: pixelRatio);
+  Future<image.Image> _screenshot(double pixelRatio) async {
+    var uiImage = await toImage(pixelRatio: pixelRatio);
+    return uiToImage(uiImage);
+  }
 
-    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    Uint8List uint8list = byteData!.buffer.asUint8List();
-    return Future.value(uint8list);
+  Future<image.Image> uiToImage(ui.Image uiImage) async {
+    var width = uiImage.width;
+    var height = uiImage.height;
+    var numChannels = 4;
+    var result =
+        image.Image(width: width, height: height, numChannels: numChannels);
+    var rgbaList =
+        (await uiImage.toByteData(format: ui.ImageByteFormat.rawStraightRgba))!
+            .buffer
+            .asUint8List();
+    var offsetY = 0;
+    for (var y = 0; y < height; y++) {
+      var realY = offsetY + y;
+      for (var i = 0; i < width; i++) {
+        var offsetByte = numChannels * (y * width + i);
+        result.setPixel(
+          i,
+          realY,
+          image.ColorUint8.fromList(
+            rgbaList.sublist(offsetByte, offsetByte + numChannels),
+          ),
+        );
+      }
+    }
+    return result;
   }
 }
