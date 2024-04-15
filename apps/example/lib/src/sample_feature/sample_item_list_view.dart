@@ -33,10 +33,7 @@ class SampleItemListView extends StatelessWidget {
       scrollController: _scrollController,
       pixelRatio: 1,
       quality: 90,
-      backgroundColor:
-          Theme.of(context).colorScheme.brightness == Brightness.light
-              ? Colors.white
-              : Theme.of(context).colorScheme.background,
+      backgroundColor: Colors.white,
     );
     if (pngBytes == null) {
       EasyLoading.dismiss();
@@ -91,34 +88,41 @@ class SampleItemListView extends StatelessWidget {
       // In contrast to the default ListView constructor, which requires
       // building all Widgets up front, the ListView.builder constructor lazily
       // builds Widgets as they’re scrolled into view.
-      body: WidgetShot(
-        key: _shotKey,
-        child: ListView.builder(
-          // Providing a restorationId allows the ListView to restore the
-          // scroll position when a user leaves and returns to the app after it
-          // has been killed while running in the background.
-          restorationId: 'sampleItemListView',
-          controller: _scrollController,
-          itemCount: items.length,
-          itemBuilder: (BuildContext context, int index) {
-            final item = items[index];
+      body: Container(
+        color: Colors.white,
+        child: WidgetShot(
+          key: _shotKey,
+          child: ListView.builder(
+            // Providing a restorationId allows the ListView to restore the
+            // scroll position when a user leaves and returns to the app after it
+            // has been killed while running in the background.
+            restorationId: 'sampleItemListView',
+            controller: _scrollController,
+            itemCount: items.length,
+            itemBuilder: (BuildContext context, int index) {
+              final item = items[index];
 
-            return ListTile(
-                title: Text('SampleItem ${item.id}'),
-                leading: const CircleAvatar(
-                  // Display the Flutter Logo image asset.
-                  foregroundImage: AssetImage('assets/images/flutter_logo.png'),
-                ),
-                onTap: () {
-                  // Navigate to the details page. If the user leaves and returns to
-                  // the app after it has been killed while running in the
-                  // background, the navigation stack is restored.
-                  Navigator.restorablePushNamed(
-                    context,
-                    SampleItemDetailsView.routeName,
-                  );
-                });
-          },
+              return Container(
+                color: const Color(0x220000ff),
+                child: ListTile(
+                    title: Text('SampleItem ${item.id}'),
+                    leading: const CircleAvatar(
+                      // Display the Flutter Logo image asset.
+                      foregroundImage:
+                          AssetImage('assets/images/flutter_logo.png'),
+                    ),
+                    onTap: () {
+                      // Navigate to the details page. If the user leaves and returns to
+                      // the app after it has been killed while running in the
+                      // background, the navigation stack is restored.
+                      Navigator.restorablePushNamed(
+                        context,
+                        SampleItemDetailsView.routeName,
+                      );
+                    }),
+              );
+            },
+          ),
         ),
       ),
     );
