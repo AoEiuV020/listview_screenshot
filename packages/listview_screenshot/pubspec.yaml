@@ -1,7 +1,9 @@
 name: listview_screenshot
-description: "A new Flutter package project."
-version: 0.0.1
+description: "Supports long screenshots, suitable for ListView and other scrollable widgets,"
+version: 1.0.0
+repository: https://github.com/AoEiuV020/listview_screenshot
 homepage:
+issue_tracker: https://github.com/AoEiuV020/listview_screenshot/issues
 
 environment:
   sdk: '>=3.3.3 <4.0.0'
