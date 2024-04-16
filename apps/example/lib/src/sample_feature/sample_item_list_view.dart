@@ -1,5 +1,6 @@
 import 'package:example/src/file/document_saver.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:listview_screenshot/listview_screenshot.dart';
 
@@ -14,7 +15,7 @@ class SampleItemListView extends StatelessWidget {
   });
 
   factory SampleItemListView() {
-    var items = List.generate(111, (index) => SampleItem(index));
+    var items = List.generate(66, (index) => SampleItem(index));
     return SampleItemListView._(items: items);
   }
 
@@ -101,24 +102,34 @@ class SampleItemListView extends StatelessWidget {
             itemBuilder: (BuildContext context, int index) {
               final item = items[index];
 
+              final text =
+                  List.generate(index, (i) => 'SampleItem $i').join(',  ');
               return Container(
                 color: const Color(0x220000ff),
-                child: ListTile(
-                    title: Text('SampleItem ${item.id}'),
-                    leading: const CircleAvatar(
-                      // Display the Flutter Logo image asset.
-                      foregroundImage:
-                          AssetImage('assets/images/flutter_logo.png'),
-                    ),
-                    onTap: () {
-                      // Navigate to the details page. If the user leaves and returns to
-                      // the app after it has been killed while running in the
-                      // background, the navigation stack is restored.
-                      Navigator.restorablePushNamed(
-                        context,
-                        SampleItemDetailsView.routeName,
-                      );
-                    }),
+                child: InkWell(
+                  onTap: () {
+                    // Navigate to the details page. If the user leaves and returns to
+                    // the app after it has been killed while running in the
+                    // background, the navigation stack is restored.
+                    Navigator.restorablePushNamed(
+                      context,
+                      SampleItemDetailsView.routeName,
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircleAvatar(
+                          // Display the Flutter Logo image asset.
+                          foregroundImage:
+                              AssetImage('assets/images/flutter_logo.png'),
+                        ),
+                      ),
+                      Expanded(child: Text(text)),
+                    ],
+                  ),
+                ),
               );
             },
           ),
