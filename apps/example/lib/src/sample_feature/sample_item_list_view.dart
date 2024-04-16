@@ -32,7 +32,6 @@ class SampleItemListView extends StatelessWidget {
     var pngBytes = await repaintBoundary.screenshotPng(
       scrollController: _scrollController,
       pixelRatio: 1,
-      level: 9,
       backgroundColor: Colors.white,
     );
     if (pngBytes == null) {
