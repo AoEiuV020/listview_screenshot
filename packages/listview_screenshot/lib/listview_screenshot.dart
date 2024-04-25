@@ -8,6 +8,7 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as image;
 
+import 'image_param.dart';
 import 'merge_param.dart';
 
 class WidgetShot extends SingleChildRenderObjectWidget {
@@ -93,10 +94,8 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         image: e.image,
         dx: 0,
         dy: imageHeight,
-        width: e.width,
-        height: e.height,
       ));
-      imageHeight += e.height;
+      imageHeight += e.image.height;
     });
 
     bool canScroll = scrollController != null &&
@@ -112,8 +111,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       image: firstImage,
       dx: 0,
       dy: imageHeight,
-      width: rWidth,
-      height: rHeight,
     ));
 
     imageHeight += rHeight;
@@ -150,8 +147,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
               image: image,
               dx: 0,
               dy: imageHeight,
-              width: rWidth,
-              height: rHeight,
             ));
             imageHeight += rHeight;
           } else if (scrollHeight > scrollController.position.maxScrollExtent) {
@@ -169,8 +164,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
               dx: 0,
               dy: (imageHeight - ((size.height - lastImageHeight) * pixelRatio))
                   .toInt(),
-              width: rWidth,
-              height: rHeight,
             ));
             imageHeight += (lastImageHeight * pixelRatio).toInt();
           } else {
@@ -194,10 +187,8 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         image: e.image,
         dx: 0,
         dy: imageHeight,
-        width: e.width,
-        height: e.height,
       ));
-      imageHeight += e.height;
+      imageHeight += e.image.height;
     });
 
     extraImage
@@ -233,8 +224,8 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       backgroundColor = image.ColorRgba8(c.red, c.green, c.blue, c.alpha);
     }
     for (var param in mergeParam.imageParams) {
-      var currentImage = param.image;
-      var currentHeight = param.height;
+      var currentImage = await uiToImage(param.image);
+      var currentHeight = param.image.height;
       var offsetY = param.dy;
       for (var y = 0; y < currentHeight; y++) {
         var realY = offsetY + y;
@@ -282,9 +273,9 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         scrollController.position.physics.tolerance.distance);
   }
 
-  Future<image.Image> _screenshot(double pixelRatio) async {
+  Future<ui.Image> _screenshot(double pixelRatio) async {
     var uiImage = await toImage(pixelRatio: pixelRatio);
-    return uiToImage(uiImage);
+    return uiImage;
   }
 
   Future<image.Image> uiToImage(ui.Image uiImage) async {

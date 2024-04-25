@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:file_saver/file_saver.dart';
@@ -17,8 +18,8 @@ class DocumentSaver {
           customMimeType: mimetype,
         );
         return saveAsResult != null && saveAsResult.isNotEmpty;
-      } catch (e) {
-        debugPrint(e.toString());
+      } catch (e, s) {
+        log(e.toString(), stackTrace: s);
       }
     }
     try {
@@ -29,9 +30,10 @@ class DocumentSaver {
         mimeType: MimeType.custom,
         customMimeType: mimetype,
       );
+      log('save: $saveResult');
       return saveResult.isNotEmpty;
-    } catch (e) {
-      debugPrint(e.toString());
+    } catch (e, s) {
+      log(e.toString(), stackTrace: s);
       return false;
     }
   }
@@ -43,6 +45,6 @@ class DocumentSaver {
       'txt',
       'text/plain',
     );
-    debugPrint("$result");
+    log("$result");
   }
 }
