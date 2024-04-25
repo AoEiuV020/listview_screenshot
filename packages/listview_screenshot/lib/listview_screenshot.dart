@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as image;
+import 'package:isolate_transformer/isolate_transformer.dart';
 import 'package:listview_screenshot/function.dart';
 
 import 'image_param.dart';
@@ -77,10 +78,12 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
   }) async {
+    final isolateTransformer = IsolateTransformer();
     final completer = Completer<image.Image>();
     final streamController = StreamController<ImageParam>();
-    imageMergeTransform(
-            streamController.stream.asyncMap((event) => event.toMap()))
+    isolateTransformer
+        .transform(streamController.stream.asyncMap((event) => event.toMap()),
+            imageMergeTransform)
         .listen((event) {
       completer.complete(ImageExtension.fromMap(event));
     });

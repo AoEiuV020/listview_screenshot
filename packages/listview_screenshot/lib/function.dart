@@ -1,4 +1,5 @@
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
@@ -20,6 +21,10 @@ Stream<Map<String, dynamic>> imageMergeTransform(
     }
     final png = map['png'];
     final currentImage = decodePng(png)!;
+    assert(() {
+      log('input: ${currentImage.width}, ${currentImage.height}');
+      return true;
+    }());
     if (image == null) {
       image = currentImage;
     } else {
@@ -27,8 +32,8 @@ Stream<Map<String, dynamic>> imageMergeTransform(
       final bottom = dy + currentImage.height;
       final oldImage = image;
       image = Image.fromResized(oldImage,
-          width: max(right, oldImage.width),
-          height: max(bottom, oldImage.height));
+          width: math.max(right, oldImage.width),
+          height: math.max(bottom, oldImage.height));
       for (var y = 0; y < image.height; y++) {
         for (var x = 0; x < image.width; x++) {
           if (y >= dy && y < bottom && x >= dx && x < right) {
@@ -45,8 +50,12 @@ Stream<Map<String, dynamic>> imageMergeTransform(
       }
     }
   }
-  image ??= Image.empty();
-  yield image.toMap();
+  final result = image ?? Image.empty();
+  assert(() {
+    log('output: ${result.width}, ${result.height}');
+    return true;
+  }());
+  yield result.toMap();
 }
 
 Color blendColors(Color? backgroundColor, Color foregroundColor) {
