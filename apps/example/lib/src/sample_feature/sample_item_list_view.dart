@@ -102,7 +102,7 @@ class SampleItemListView extends StatelessWidget {
               final item = items[index];
 
               final text =
-                  List.generate(index, (i) => 'SampleItem $i').join(',  ');
+                  List.generate(item.id, (i) => 'SampleItem $i').join(',  ');
               return Container(
                 color: const Color(0x220000ff),
                 child: InkWell(

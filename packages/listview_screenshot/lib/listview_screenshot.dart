@@ -11,7 +11,6 @@ import 'package:isolate_transformer/isolate_transformer.dart';
 import 'package:listview_screenshot/function.dart';
 
 import 'image_param.dart';
-import 'merge_param.dart';
 
 class WidgetShot extends SingleChildRenderObjectWidget {
   const WidgetShot({super.key, super.child});
