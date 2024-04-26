@@ -5,8 +5,8 @@ import 'dart:typed_data';
 import 'package:image/image.dart';
 
 @pragma('vm:entry-point')
-Stream<Map<String, dynamic>> imageMergeTransform(
-    Stream<Map<String, dynamic>> inputStream) async* {
+Stream<Map> imageMergeTransform(
+    Stream<Map> inputStream) async* {
   Image? image;
   await for (var map in inputStream) {
     final int dx = map['dx'];
@@ -79,7 +79,7 @@ Color blendColors(Color? backgroundColor, Color foregroundColor) {
 }
 
 extension ImageExtension on Image {
-  static Image fromMap(Map<String, dynamic> map) {
+  static Image fromMap(Map<dynamic, dynamic> map) {
     final width = map['width'];
     final height = map['height'];
     final buffer = map['buffer'];

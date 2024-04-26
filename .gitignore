@@ -20,3 +20,7 @@ docs/**/*.g.dart
 */build/
 **/pubspec_overrides.yaml
 **.history/
+
+# dart to js 生成的调试文件，
+*.js.deps
+*.js.map

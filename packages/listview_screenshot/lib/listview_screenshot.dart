@@ -32,6 +32,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     int? maxHeight,
     double pixelRatio = 1.0,
     Color? backgroundColor,
+    String workerName = '',
   }) async {
     var resultImage = await screenshot(
       scrollController: scrollController,
@@ -39,6 +40,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       maxHeight: maxHeight,
       pixelRatio: pixelRatio,
       backgroundColor: backgroundColor,
+      workerName: workerName,
     );
     // level是压缩率，level越大文件越小速度越慢，不影响图像质量，0是不压缩，
     // 参考 [deflate](https://github.com/brendan-duncan/archive/blob/main/lib/src/zlib/deflate.dart)
@@ -53,6 +55,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     int? maxHeight,
     double pixelRatio = 1.0,
     Color? backgroundColor,
+    String workerName = '',
     int quality = 90,
   }) async {
     var resultImage = await screenshot(
@@ -61,6 +64,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       maxHeight: maxHeight,
       pixelRatio: pixelRatio,
       backgroundColor: backgroundColor,
+      workerName: workerName,
     );
     return image.encodeJpg(resultImage, quality: quality);
   }
@@ -76,13 +80,14 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     int? maxHeight,
     double pixelRatio = 1.0,
     Color? backgroundColor,
+    String workerName = '',
   }) async {
     final isolateTransformer = IsolateTransformer();
     final completer = Completer<image.Image>();
     final streamController = StreamController<ImageParam>();
     isolateTransformer
         .transform(streamController.stream.asyncMap((event) => event.toMap()),
-            imageMergeTransform)
+            imageMergeTransform, workerName: workerName)
         .listen((event) {
       completer.complete(ImageExtension.fromMap(event));
     });

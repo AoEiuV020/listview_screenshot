@@ -6,6 +6,13 @@ packages:
   - packages/**
 
 scripts:
+  worker2js:
+    steps:
+      - melos worker2jsImageMerge
+  worker2jsImageMerge:
+    exec: cd web && dart compile js imageMergeTransform.dart -o imageMergeTransform.js -O4
+    packageFilters:
+      scope: 'example'
   analyze:
     exec: dart analyze .
   test:

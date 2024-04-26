@@ -33,6 +33,7 @@ class SampleItemListView extends StatelessWidget {
       scrollController: _scrollController,
       pixelRatio: 1,
       backgroundColor: Colors.white,
+      workerName: 'imageMergeTransform',
     );
     if (pngBytes == null) {
       EasyLoading.dismiss();
