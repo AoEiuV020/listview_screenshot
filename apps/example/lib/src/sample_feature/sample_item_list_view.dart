@@ -31,7 +31,6 @@ class SampleItemListView extends StatelessWidget {
         context.findRenderObject() as WidgetShotRenderRepaintBoundary;
     var pngBytes = await repaintBoundary.screenshotPng(
       scrollController: _scrollController,
-      pixelRatio: 1,
       backgroundColor: Colors.white,
       workerName: 'imageMergeTransform',
     );
