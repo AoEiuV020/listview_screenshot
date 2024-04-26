@@ -9,7 +9,7 @@ flutter针对ListView等滚动视图实现长截图，
 ## Getting started
 
 ```shell
-dart pub add isolate_transformer
+dart pub add listview_screenshot
 ```
 
 ## Usage
