@@ -57,8 +57,3 @@ dart compile js imageMergeTransform.dart -o imageMergeTransform.js -O4
 ## TODO
 - [ ] mac HiDPI截不到高清图，
 - [ ] web端一下一下的卡顿，
-- [x] 合并过程异步，
-- [x] 发布到pub.dev，
-- [x] 全平台支持，
-- [x] 提供未编码的图像或png/jpg已编码图像，
-- [x] 整页翻页超长截图拼接，
