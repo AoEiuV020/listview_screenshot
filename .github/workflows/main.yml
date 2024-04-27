@@ -36,7 +36,7 @@ jobs:
               if [[ -x ./latest-changelog.sh ]]
               then
                   RELEASE_BODY=$(./latest-changelog.sh $BUILD_VERSION)
-                  TG_CHANGELOG=$(./latest-changelog.sh $BUILD_VERSION)
+                  TG_CHANGELOG=$RELEASE_BODY
               fi
               if [[ -z "$RELEASE_BODY" ]]
               then
