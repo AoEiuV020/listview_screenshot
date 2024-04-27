@@ -1,10 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:example/src/file/document_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:listview_screenshot/listview_screenshot.dart';
 
+import '../file/document_saver.dart';
 import '../settings/settings_view.dart';
 import 'sample_item.dart';
 import 'sample_item_details_view.dart';
