@@ -7,9 +7,10 @@ import 'package:image/image.dart';
 @pragma('vm:entry-point')
 Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
   var index = 0;
-  final List<(Image, int, int, Color?)> list = [];
+  final List<(Image, int, int)> list = [];
   var maxWidth = 0;
   var maxHeight = 0;
+  int startTime = DateTime.now().millisecondsSinceEpoch;
   await for (var map in inputStream) {
     final int dx = map['dx'];
     final int dy = map['dy'];
@@ -30,7 +31,7 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
         currentImage.setPixel(x, y, newPixel);
       }
     }
-    list.add((currentImage, dx, dy, backgroundColor));
+    list.add((currentImage, dx, dy));
     final right = dx + currentImage.width;
     final bottom = dy + currentImage.height;
     if (right > maxWidth) {
@@ -45,24 +46,31 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
       return true;
     }());
   }
+  int inputTime = DateTime.now().millisecondsSinceEpoch;
+  assert(() {
+    log('inputTime: ${inputTime - startTime}');
+    return true;
+  }());
   Image? image;
   for (var param in list) {
-    final (currentImage, dx, dy, backgroundColor) = param;
+    final (currentImage, dx, dy) = param;
     image ??=
         Image.fromResized(currentImage, width: maxWidth, height: maxHeight);
-    final right = dx + currentImage.width;
     final bottom = dy + currentImage.height;
-    final oldImage = image;
+    final imageBuffer = image.buffer.asUint32List();
+    final currentImageBuffer = currentImage.buffer.asUint32List();
     for (var y = dy; y < bottom; y++) {
-      for (var x = dx; x < right; x++) {
-        if (y >= dy && y < bottom && x >= dx && x < right) {
-          image.setPixel(x, y, currentImage.getPixel(x - dx, y - dy));
-        } else if (y < oldImage.height && x < oldImage.width) {
-          image.setPixel(x, y, oldImage.getPixel(x, y));
-        }
-      }
+      final start = image.width * y + dx;
+      final end = start + currentImage.width;
+      imageBuffer.setRange(start, end,
+          currentImageBuffer.sublist((y - dy) * currentImage.width));
     }
   }
+  int mergeTime = DateTime.now().millisecondsSinceEpoch;
+  assert(() {
+    log('mergeTime: ${mergeTime - inputTime}');
+    return true;
+  }());
   final result = image ?? Image.empty();
   assert(() {
     log('output: ${result.width}, ${result.height}');

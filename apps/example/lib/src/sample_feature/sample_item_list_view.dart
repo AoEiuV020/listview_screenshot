@@ -14,7 +14,7 @@ class SampleItemListView extends StatelessWidget {
   });
 
   factory SampleItemListView() {
-    var items = List.generate(66, (index) => SampleItem(index));
+    var items = List.generate(166, (index) => SampleItem(index));
     return SampleItemListView._(items: items);
   }
 
