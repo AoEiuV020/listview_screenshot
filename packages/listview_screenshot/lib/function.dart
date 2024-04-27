@@ -5,9 +5,10 @@ import 'dart:typed_data';
 import 'package:image/image.dart';
 
 @pragma('vm:entry-point')
-Stream<Map> imageMergeTransform(
-    Stream<Map> inputStream) async* {
+Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
   Image? image;
+  var index = 0;
+  final List<(Image, int, int, Color?)> list = [];
   await for (var map in inputStream) {
     final int dx = map['dx'];
     final int dy = map['dy'];
@@ -21,6 +22,11 @@ Stream<Map> imageMergeTransform(
     }
     final png = map['png'];
     final currentImage = decodePng(png)!;
+    list.add((currentImage, dx, dy, backgroundColor));
+    yield index++;
+  }
+  for (var param in list) {
+    final (currentImage, dx, dy, backgroundColor) = param;
     assert(() {
       log('input: ${currentImage.width}, ${currentImage.height}');
       return true;
@@ -92,4 +98,36 @@ extension ImageExtension on Image {
         'height': height,
         'buffer': buffer,
       };
+}
+
+/// 封装image库中的Image， 区别于flutter库中的Image,
+class ImageImageParam {
+  final Image image;
+  final int dx;
+  final int dy;
+  final Color? color;
+
+  ImageImageParam({
+    required this.image,
+    required this.dx,
+    required this.dy,
+    required this.color,
+  });
+
+  factory ImageImageParam.fromMap(Map map) {
+    final int dx = map['dx'];
+    final int dy = map['dy'];
+    final int? color = map['color'];
+    final Color? backgroundColor;
+    if (color != null) {
+      final argb = (ByteData(4)..setUint32(0, color)).buffer.asUint8List();
+      backgroundColor = ColorUint8.rgba(argb[1], argb[2], argb[3], argb[0]);
+    } else {
+      backgroundColor = null;
+    }
+    final png = map['png'];
+    final currentImage = decodePng(png)!;
+    return ImageImageParam(
+        image: currentImage, dx: dx, dy: dy, color: backgroundColor);
+  }
 }

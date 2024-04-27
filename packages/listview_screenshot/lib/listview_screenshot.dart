@@ -33,6 +33,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
+    void Function(int, int)? onProcess,
   }) async {
     var resultImage = await screenshot(
       scrollController: scrollController,
@@ -41,6 +42,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       pixelRatio: pixelRatio,
       backgroundColor: backgroundColor,
       workerName: workerName,
+      onProcess: onProcess,
     );
     // level是压缩率，level越大文件越小速度越慢，不影响图像质量，0是不压缩，
     // 参考 [deflate](https://github.com/brendan-duncan/archive/blob/main/lib/src/zlib/deflate.dart)
@@ -56,6 +58,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
+    void Function(int, int)? onProcess,
     int quality = 90,
   }) async {
     var resultImage = await screenshot(
@@ -65,6 +68,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       pixelRatio: pixelRatio,
       backgroundColor: backgroundColor,
       workerName: workerName,
+      onProcess: onProcess,
     );
     return image.encodeJpg(resultImage, quality: quality);
   }
@@ -74,6 +78,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   /// [scrollController] 属于滚动控件的控制器，
   /// [maxHeight] 粗略的限高，不完全靠谱，
   /// [backgroundColor] 背景色，
+  /// [onProcess] 进度回调，参数两个int，第一个是是当前工作线程收到的图片数量（从1开始，全部收到为0），第二个是算出的总图片数量，item高度有变的话不准，
   Future<image.Image> screenshot({
     ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
@@ -81,18 +86,36 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
+    void Function(int, int)? onProcess,
   }) async {
     final isolateTransformer = IsolateTransformer();
     final completer = Completer<image.Image>();
     final streamController = StreamController<ImageParam>();
-    isolateTransformer
-        .transform(streamController.stream.asyncMap((event) => event.toMap()),
-            imageMergeTransform, workerName: workerName)
-        .listen((event) {
-      completer.complete(ImageExtension.fromMap(event));
-    });
     int sHeight =
         (scrollController?.position.viewportDimension ?? size.height).toInt();
+    isolateTransformer
+        .transform(streamController.stream.asyncMap((event) => event.toMap()),
+            imageMergeTransform,
+            workerName: workerName)
+        .listen((event) {
+      if (event is int) {
+        var totalCount;
+        if (scrollController == null) {
+          totalCount = 1;
+        } else {
+          totalCount =
+              (scrollController.position.maxScrollExtent / sHeight).ceil();
+        }
+        totalCount += extraImage.length;
+        if (streamController.isClosed) {
+          onProcess?.call(0, totalCount);
+        } else {
+          onProcess?.call(event + 1, totalCount);
+        }
+      } else if (event is Map) {
+        completer.complete(ImageExtension.fromMap(event));
+      }
+    });
 
     // ignore: unused_local_variable
     int rWidth = (size.width * pixelRatio).toInt();
