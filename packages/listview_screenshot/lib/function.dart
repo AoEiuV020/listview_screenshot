@@ -23,6 +23,13 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     }
     final png = map['png'];
     final currentImage = decodePng(png)!;
+    for (var y = 0; y < currentImage.height; y++) {
+      for (var x = 0; x < currentImage.width; x++) {
+        final newPixel =
+            blendColors(backgroundColor, currentImage.getPixel(x, y));
+        currentImage.setPixel(x, y, newPixel);
+      }
+    }
     list.add((currentImage, dx, dy, backgroundColor));
     final right = dx + currentImage.width;
     final bottom = dy + currentImage.height;
@@ -33,14 +40,14 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
       maxHeight = bottom;
     }
     yield index++;
-  }
-  Image? image;
-  for (var param in list) {
-    final (currentImage, dx, dy, backgroundColor) = param;
     assert(() {
       log('input: ${currentImage.width}, ${currentImage.height}');
       return true;
     }());
+  }
+  Image? image;
+  for (var param in list) {
+    final (currentImage, dx, dy, backgroundColor) = param;
     image ??=
         Image.fromResized(currentImage, width: maxWidth, height: maxHeight);
     final right = dx + currentImage.width;
@@ -49,14 +56,9 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     for (var y = dy; y < bottom; y++) {
       for (var x = dx; x < right; x++) {
         if (y >= dy && y < bottom && x >= dx && x < right) {
-          image.setPixel(
-              x,
-              y,
-              blendColors(
-                  backgroundColor, currentImage.getPixel(x - dx, y - dy)));
+          image.setPixel(x, y, currentImage.getPixel(x - dx, y - dy));
         } else if (y < oldImage.height && x < oldImage.width) {
-          image.setPixel(
-              x, y, blendColors(backgroundColor, oldImage.getPixel(x, y)));
+          image.setPixel(x, y, oldImage.getPixel(x, y));
         }
       }
     }
