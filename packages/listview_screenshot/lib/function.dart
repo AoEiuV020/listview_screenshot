@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
+import 'package:listview_screenshot/screenshot_format.dart';
 
 @pragma('vm:entry-point')
 Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
@@ -9,8 +10,13 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
   final List<(Image, int, int)> list = [];
   var maxWidth = 0;
   var maxHeight = 0;
+  ScreenshotEncoder? encoder;
   int startTime = DateTime.now().millisecondsSinceEpoch;
   await for (var map in inputStream) {
+    if (ScreenshotEncoder.isValidMap(map)) {
+      encoder = ScreenshotEncoder.fromMap(map);
+      continue;
+    }
     final int dx = map['dx'];
     final int dy = map['dy'];
     final int? color = map['color'];
@@ -83,7 +89,16 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     log('output: ${result.width}, ${result.height}');
     return true;
   }());
-  yield result.toMap();
+  if (encoder == null) {
+    yield result.toMap();
+    return;
+  }
+  yield encoder.encode(result);
+  int encodeTime = DateTime.now().millisecondsSinceEpoch;
+  assert(() {
+    log('encodeTime: ${encodeTime - mergeTime}');
+    return true;
+  }());
 }
 
 Color blendColors(Color? backgroundColor, Color foregroundColor) {

@@ -34,7 +34,7 @@ dart pub add listview_screenshot
     var context = _shotKey.currentContext!;
     WidgetShotRenderRepaintBoundary repaintBoundary =
         context.findRenderObject() as WidgetShotRenderRepaintBoundary;
-    Uint8List? pngBytes = await repaintBoundary.screenshotPng( // 或者调用screenshot得到image库的Image对象，
+    Uint8List? pngBytes = await repaintBoundary.screenshotPng( // 或者调用screenshotImage得到image库的Image对象，
       scrollController: _scrollController,
       backgroundColor: Colors.white,
       workerName: 'imageMergeTransform', // web异步线程合并要生成对应js文件，否则不传，
@@ -55,5 +55,4 @@ dart compile js imageMergeTransform.dart -o imageMergeTransform.js -O4
 ```
 
 ## TODO
-- [ ] mac HiDPI截不到高清图，
-- [ ] web端一下一下的卡顿，
+- mac HiDPI截不到高清图，
