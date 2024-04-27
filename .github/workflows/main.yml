@@ -397,6 +397,14 @@ jobs:
     permissions:
       id-token: write # This is required for requesting the JWT
     steps:
+      - name: download custom env
+        uses: actions/download-artifact@v4
+        with:
+          name: custom_env
+      - name: apply custom env
+        run: |
+          cat .custom_env >> $GITHUB_ENV
+          rm .custom_env
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
