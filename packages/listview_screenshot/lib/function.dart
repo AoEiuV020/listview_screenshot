@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
@@ -59,11 +58,19 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     final bottom = dy + currentImage.height;
     final imageBuffer = image.buffer.asUint32List();
     final currentImageBuffer = currentImage.buffer.asUint32List();
-    for (var y = dy; y < bottom; y++) {
-      final start = image.width * y + dx;
-      final end = start + currentImage.width;
-      imageBuffer.setRange(start, end,
-          currentImageBuffer.sublist((y - dy) * currentImage.width));
+    if (dx == 0 && currentImage.width == image.width) {
+      // 整个图片合并，
+      final start = image.width * dy;
+      final end = start + image.width * currentImage.height;
+      imageBuffer.setRange(start, end, currentImageBuffer);
+    } else {
+      // 一行一行合并，
+      for (var y = dy; y < bottom; y++) {
+        final start = image.width * y + dx;
+        final end = start + currentImage.width;
+        imageBuffer.setRange(start, end,
+            currentImageBuffer.sublist((y - dy) * currentImage.width));
+      }
     }
   }
   int mergeTime = DateTime.now().millisecondsSinceEpoch;
