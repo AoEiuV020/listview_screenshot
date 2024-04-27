@@ -403,6 +403,10 @@ jobs:
           channel: "stable"
       - name: 'Installs the Dart SDK and sets up the pipeline for usage with pub.dev (this sets up OIDC)'
         uses: dart-lang/setup-dart@v1
-      - run: |
-          ./script/prepare.sh
-          ./script/publish.sh
+      - run: ./script/prepare.sh
+      - name: publish dry run
+        if: ${{ env.CREATE_RELEASE != 'true' }}
+        run: ./script/publish_dry_run.sh
+      - name: publish package
+        if: ${{ env.CREATE_RELEASE == 'true' }}
+        run: ./script/publish.sh
