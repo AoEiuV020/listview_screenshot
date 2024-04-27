@@ -6,9 +6,10 @@ import 'package:image/image.dart';
 
 @pragma('vm:entry-point')
 Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
-  Image? image;
   var index = 0;
   final List<(Image, int, int, Color?)> list = [];
+  var maxWidth = 0;
+  var maxHeight = 0;
   await for (var map in inputStream) {
     final int dx = map['dx'];
     final int dy = map['dy'];
@@ -23,35 +24,39 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     final png = map['png'];
     final currentImage = decodePng(png)!;
     list.add((currentImage, dx, dy, backgroundColor));
+    final right = dx + currentImage.width;
+    final bottom = dy + currentImage.height;
+    if (right > maxWidth) {
+      maxWidth = right;
+    }
+    if (bottom > maxHeight) {
+      maxHeight = bottom;
+    }
     yield index++;
   }
+  Image? image;
   for (var param in list) {
     final (currentImage, dx, dy, backgroundColor) = param;
     assert(() {
       log('input: ${currentImage.width}, ${currentImage.height}');
       return true;
     }());
-    if (image == null) {
-      image = currentImage;
-    } else {
-      final right = dx + currentImage.width;
-      final bottom = dy + currentImage.height;
-      final oldImage = image;
-      image = Image.fromResized(oldImage,
-          width: math.max(right, oldImage.width),
-          height: math.max(bottom, oldImage.height));
-      for (var y = 0; y < image.height; y++) {
-        for (var x = 0; x < image.width; x++) {
-          if (y >= dy && y < bottom && x >= dx && x < right) {
-            image.setPixel(
-                x,
-                y,
-                blendColors(
-                    backgroundColor, currentImage.getPixel(x - dx, y - dy)));
-          } else if (y < oldImage.height && x < oldImage.width) {
-            image.setPixel(
-                x, y, blendColors(backgroundColor, oldImage.getPixel(x, y)));
-          }
+    image ??=
+        Image.fromResized(currentImage, width: maxWidth, height: maxHeight);
+    final right = dx + currentImage.width;
+    final bottom = dy + currentImage.height;
+    final oldImage = image;
+    for (var y = dy; y < bottom; y++) {
+      for (var x = dx; x < right; x++) {
+        if (y >= dy && y < bottom && x >= dx && x < right) {
+          image.setPixel(
+              x,
+              y,
+              blendColors(
+                  backgroundColor, currentImage.getPixel(x - dx, y - dy)));
+        } else if (y < oldImage.height && x < oldImage.width) {
+          image.setPixel(
+              x, y, blendColors(backgroundColor, oldImage.getPixel(x, y)));
         }
       }
     }
