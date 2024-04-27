@@ -2,13 +2,7 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
-import 'package:isolate_transformer/worker_transformer.dart';
 import 'package:listview_screenshot/screenshot_format.dart';
-
-@pragma('vm:entry-point')
-void imageMergeTransformWorkerMain() {
-  workerMain(imageMergeTransform);
-}
 
 @pragma('vm:entry-point')
 Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
