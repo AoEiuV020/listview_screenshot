@@ -1,6 +1,6 @@
 name: listview_screenshot
 description: "Supports long screenshots, suitable for ListView and other scrollable widgets,"
-version: 1.1.0
+version: 1.1.1
 repository: https://github.com/AoEiuV020/listview_screenshot/tree/main/packages/listview_screenshot
 homepage:
 issue_tracker: https://github.com/AoEiuV020/listview_screenshot/issues
