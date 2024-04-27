@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:example/src/file/document_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -29,21 +31,23 @@ class SampleItemListView extends StatelessWidget {
     var context = _shotKey.currentContext!;
     WidgetShotRenderRepaintBoundary repaintBoundary =
         context.findRenderObject() as WidgetShotRenderRepaintBoundary;
-    var pngBytes = await repaintBoundary.screenshotPng(
-      scrollController: _scrollController,
-      backgroundColor: Colors.white,
-      workerName: 'imageMergeTransform',
-      onProcess: (p0, p1) {
-        if (p0 == 0) {
-          EasyLoading.show(status: '正在合并截图，请勿操作');
-        } else {
-          EasyLoading.showProgress(p0 / p1, status: '正在创建截图，请勿操作, $p0/$p1');
-        }
-      },
-    );
-    if (pngBytes == null) {
+    Uint8List pngBytes;
+    try {
+      pngBytes = await repaintBoundary.screenshotPng(
+        scrollController: _scrollController,
+        backgroundColor: Colors.white,
+        workerName: 'imageMergeTransform',
+        onProcess: (p0, p1) {
+          if (p0 == 0) {
+            EasyLoading.show(status: '正在合并截图，请勿操作');
+          } else {
+            EasyLoading.showProgress(p0 / p1, status: '正在创建截图，请勿操作, $p0/$p1');
+          }
+        },
+      );
+    } catch (e) {
       EasyLoading.dismiss();
-      EasyLoading.showError('生成截图失败');
+      EasyLoading.showError('生成截图失败: ${e.toString()}');
       return;
     }
     EasyLoading.show(status: '正在保存长截图...');

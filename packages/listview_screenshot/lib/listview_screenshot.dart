@@ -27,7 +27,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   WidgetShotRenderRepaintBoundary(this.context);
 
   /// 长截图，边滚动边截图，最后拼接压缩，成png格式的二进制数据，
-  Future<Uint8List?> screenshotPng({
+  Future<Uint8List> screenshotPng({
     ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
@@ -50,7 +50,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
   /// 长截图，边滚动边截图，最后拼接压缩，成jpg格式的二进制数据，
   /// [quality] jpg图片质量，1-100，
-  Future<Uint8List?> screenshotJpg({
+  Future<Uint8List> screenshotJpg({
     ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
@@ -146,7 +146,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       } else {
         throw StateError('unknown result: ${event.runtimeType}');
       }
-    });
+    }, onError: completer.completeError);
     streamController.add(encoder);
 
     // ignore: unused_local_variable
