@@ -13,12 +13,14 @@ class ImageParam {
     required this.color,
   });
   Future<Map<String, dynamic>> toMap() async {
-    final data = await image.toByteData(format: ImageByteFormat.png);
+    final data = await image.toByteData(format: ImageByteFormat.rawStraightRgba);
     return {
       'dx': dx,
       'dy': dy,
+      'width': image.width,
+      'height': image.height,
       'color': color?.value,
-      'png': data!.buffer.asUint8List(),
+      'bytes': data!.buffer.asUint8List(),
     };
   }
 }

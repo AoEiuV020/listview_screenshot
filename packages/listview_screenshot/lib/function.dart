@@ -27,8 +27,7 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     } else {
       backgroundColor = null;
     }
-    final png = map['png'];
-    final currentImage = decodePng(png)!;
+    final currentImage = decodeRgba(map['width'], map['height'], map['bytes']);
     for (var y = 0; y < currentImage.height; y++) {
       for (var x = 0; x < currentImage.width; x++) {
         final newPixel =
@@ -99,6 +98,16 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     log('encodeTime: ${encodeTime - mergeTime}');
     return true;
   }());
+}
+
+Image decodeRgba(int width, int height, Uint8List bytes) {
+  final image = Image.fromBytes(
+    width: width,
+    height: height,
+    bytes: bytes.buffer,
+    numChannels: 4,
+  );
+  return image;
 }
 
 Color blendColors(Color? backgroundColor, Color foregroundColor) {
