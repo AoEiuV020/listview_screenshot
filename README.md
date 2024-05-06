@@ -1,5 +1,5 @@
 # listview_screenshot
-flutter针对ListView等滚动视图实现长截图，
+flutter全平台针对ListView等滚动视图实现长截图，
 
 [![img](https://img.shields.io/github/release/AoEiuV020/listview_screenshot.svg)](https://github.com/AoEiuV020/listview_screenshot/releases)
 [![CI](https://github.com/AoEiuV020/listview_screenshot/workflows/CI/badge.svg)](https://github.com/AoEiuV020/listview_screenshot/actions)
@@ -13,7 +13,7 @@ dart pub add listview_screenshot
 ```
 
 ## Usage
-[列表截图](./apps/example/lib/src/sample_feature/sample_item_list_view.dart)  
+[列表截图示例](./apps/example/lib/src/sample_feature/sample_item_list_view.dart)  
 
 核心是 [WidgetShotRenderRepaintBoundary.screenshot](./packages/listview_screenshot/lib/listview_screenshot.dart)  
 ```dart
@@ -31,18 +31,30 @@ dart pub add listview_screenshot
 ```
 ```dart
   void onScreenshot() async {
+    EasyLoading.show(status: '正在创建截图，请勿操作');
     var context = _shotKey.currentContext!;
     WidgetShotRenderRepaintBoundary repaintBoundary =
         context.findRenderObject() as WidgetShotRenderRepaintBoundary;
-    Uint8List? pngBytes = await repaintBoundary.screenshotPng( // 或者调用screenshotImage得到image库的Image对象，
-      scrollController: _scrollController,
-      backgroundColor: Colors.white,
-      workerName: 'imageMergeTransform', // web异步线程合并要生成对应js文件，否则不传，
-    );
-    if (pngBytes == null) {
-      // ... error,
+    Uint8List pngBytes;
+    try {
+      pngBytes = await repaintBoundary.screenshotPng( // 或者调用screenshotImage得到image库的Image对象，
+        scrollController: _scrollController,
+        backgroundColor: Colors.white,
+        workerName: 'imageMergeTransform', // web异步线程合并要生成对应js文件，否则不传，
+        onProcess: (p0, p1) {
+          if (p0 == 0) {
+            EasyLoading.show(status: '正在合并截图，请勿操作');
+          } else {
+            EasyLoading.showProgress(p0 / p1, status: '正在创建截图，请勿操作, $p0/$p1');
+          }
+        },
+      );
+    } catch (e) {
+      EasyLoading.dismiss();
+      EasyLoading.showError('生成截图失败: ${e.toString()}');
       return;
     }
+    EasyLoading.show(status: '正在保存长截图...');
     // ... save pngBytes to png file,
   }
 ```
@@ -50,6 +62,7 @@ web异步线程合并支持，
 [imageMergeTransform.dart](./packages/listview_screenshot/web/imageMergeTransform.dart)
 下载到flutter项目web目录下，使用如下代码编译出js文件，  
 生成的js文件名填写到screenshot方法参数workerName，  
+同时生成的js.deps和js.map文件仅调试使用，不必须，  
 ```shell
 dart compile js imageMergeTransform.dart -o imageMergeTransform.js -O4
 ```
