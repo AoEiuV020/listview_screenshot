@@ -6,26 +6,22 @@ import 'package:listview_screenshot/listview_screenshot.dart';
 
 import '../file/document_saver.dart';
 import '../settings/settings_view.dart';
-import 'sample_item.dart';
 import 'sample_item_details_view.dart';
 
 /// Displays a list of SampleItems.
-class SampleItemListView extends StatelessWidget {
-  SampleItemListView._({
-    required this.items,
-  });
-
-  factory SampleItemListView() {
-    var items = List.generate(166, (index) => SampleItem(index));
-    return SampleItemListView._(items: items);
-  }
+class SampleItemListView extends StatefulWidget {
+  const SampleItemListView({super.key});
 
   static const routeName = '/';
 
-  final List<SampleItem> items;
+  @override
+  State<SampleItemListView> createState() => _SampleItemListViewState();
+}
+
+class _SampleItemListViewState extends State<SampleItemListView> {
   final GlobalKey _shotKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
-
+  int _currentValue = 60;
   void onScreenshot() async {
     EasyLoading.show(status: '正在创建截图，请勿操作');
     var context = _shotKey.currentContext!;
@@ -100,49 +96,63 @@ class SampleItemListView extends StatelessWidget {
       // builds Widgets as they’re scrolled into view.
       body: Container(
         color: Colors.white,
-        child: WidgetShot(
-          key: _shotKey,
-          child: ListView.builder(
-            // Providing a restorationId allows the ListView to restore the
-            // scroll position when a user leaves and returns to the app after it
-            // has been killed while running in the background.
-            restorationId: 'sampleItemListView',
-            controller: _scrollController,
-            itemCount: items.length,
-            itemBuilder: (BuildContext context, int index) {
-              final item = items[index];
-
-              final text =
-                  List.generate(item.id, (i) => 'SampleItem $i').join(',  ');
-              return Container(
-                color: const Color(0x220000ff),
-                child: InkWell(
-                  onTap: () {
-                    // Navigate to the details page. If the user leaves and returns to
-                    // the app after it has been killed while running in the
-                    // background, the navigation stack is restored.
-                    Navigator.restorablePushNamed(
-                      context,
-                      SampleItemDetailsView.routeName,
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircleAvatar(
-                          // Display the Flutter Logo image asset.
-                          foregroundImage:
-                              AssetImage('assets/images/flutter_logo.png'),
+        child: Column(
+          children: [
+            Slider(
+              min: 0,
+              max: 200,
+              value: _currentValue.toDouble(),
+              onChanged: (double newValue) {
+                setState(() {
+                  _currentValue = newValue.round();
+                });
+              },
+            ),
+            Expanded(
+              child: WidgetShot(
+                key: _shotKey,
+                child: ListView.builder(
+                  // Providing a restorationId allows the ListView to restore the
+                  // scroll position when a user leaves and returns to the app after it
+                  // has been killed while running in the background.
+                  restorationId: 'sampleItemListView',
+                  controller: _scrollController,
+                  itemCount: _currentValue,
+                  itemBuilder: (BuildContext context, int index) {
+                    final text = List.generate(index, (i) => 'SampleItem $i')
+                        .join(',  ');
+                    return Container(
+                      color: const Color(0x220000ff),
+                      child: InkWell(
+                        onTap: () {
+                          // Navigate to the details page. If the user leaves and returns to
+                          // the app after it has been killed while running in the
+                          // background, the navigation stack is restored.
+                          Navigator.restorablePushNamed(
+                            context,
+                            SampleItemDetailsView.routeName,
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircleAvatar(
+                                // Display the Flutter Logo image asset.
+                                foregroundImage: AssetImage(
+                                    'assets/images/flutter_logo.png'),
+                              ),
+                            ),
+                            Expanded(child: Text(text)),
+                          ],
                         ),
                       ),
-                      Expanded(child: Text(text)),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
