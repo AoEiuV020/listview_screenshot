@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -8,7 +7,7 @@ import 'package:flutter/foundation.dart';
 class DocumentSaver {
   static Future<bool> save(
       Uint8List data, String filename, String ext, String mimetype) async {
-    if (!kIsWeb && !Platform.isMacOS) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
         var saveAsResult = await FileSaver.instance.saveAs(
           name: filename,
@@ -26,7 +25,7 @@ class DocumentSaver {
       var saveResult = await FileSaver.instance.saveFile(
         name: filename,
         bytes: data,
-        ext: '.$ext',
+        ext: '.$ext', // FileSaver内部bug，拓展名加不加点一片混乱，
         mimeType: MimeType.custom,
         customMimeType: mimetype,
       );
@@ -36,15 +35,5 @@ class DocumentSaver {
       log(e.toString(), stackTrace: s);
       return false;
     }
-  }
-
-  static void test() async {
-    var result = await save(
-      utf8.encode('hello'),
-      'test',
-      'txt',
-      'text/plain',
-    );
-    log("$result");
   }
 }
