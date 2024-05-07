@@ -40,7 +40,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   Future<Uint8List> screenshotPng({
     List<ImageParam> extraImage = const [],
     int? maxHeight,
-    double pixelRatio = 1.0,
+    double? pixelRatio,
     Color? backgroundColor,
     String workerName = '',
     OnProcess? onProcess,
@@ -62,7 +62,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   Future<Uint8List> screenshotJpg({
     List<ImageParam> extraImage = const [],
     int? maxHeight,
-    double pixelRatio = 1.0,
+    double? pixelRatio,
     Color? backgroundColor,
     String workerName = '',
     OnProcess? onProcess,
@@ -83,7 +83,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   Future<image.Image> screenshotImage({
     List<ImageParam> extraImage = const [],
     int? maxHeight,
-    double pixelRatio = 1.0,
+    double? pixelRatio,
     Color? backgroundColor,
     String workerName = '',
     OnProcess? onProcess,
@@ -103,18 +103,20 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   /// 长截图，边滚动边截图，最后拼接压缩，
   ///
   /// [maxHeight] 粗略的限高，不完全靠谱，
+  /// [pixelRatio] 真实像素与逻辑像素的比例，默认按设备设置来，系统显示器设置200%就是2.0，两倍宽高更清晰，可以改成1.0意味着按逻辑像素输出截图尺寸，
   /// [backgroundColor] 背景色，
   /// [onProcess] 进度回调，参数两个int，第一个是是当前工作线程收到的图片数量（从1开始，全部收到为0），第二个是算出的总图片数量，item高度有变的话不准，
   /// [encoder] 截图后的编码方式，比如jpg, png, 默认为空就是不编码，返回原始Image,
   Future<ImageBuffer> _screenshot({
     List<ImageParam> extraImage = const [],
     int? maxHeight,
-    double pixelRatio = 1.0,
+    double? pixelRatio,
     Color? backgroundColor,
     String workerName = '',
     OnProcess? onProcess,
     required ScreenshotEncoder encoder,
   }) async {
+    pixelRatio ??= MediaQuery.of(context).devicePixelRatio;
     final scrollController = controller;
     final isolateTransformer = IsolateTransformer();
     // 返回返回合并结果，包含Uint8List,
