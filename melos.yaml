@@ -28,6 +28,8 @@ scripts:
       ignore: '*example*'
   analyze:
     exec: dart analyze .
+  fix:
+    exec: dart fix --apply
   test:
     run: flutter test --no-pub --coverage
     exec:

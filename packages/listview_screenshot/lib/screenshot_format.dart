@@ -5,6 +5,7 @@ import 'package:image/image.dart';
 enum ScreenshotFormat {
   png,
   jpg,
+  rgba,
 }
 
 class ScreenshotEncoder {
@@ -19,6 +20,10 @@ class ScreenshotEncoder {
         return encodePng(image);
       case ScreenshotFormat.jpg:
         return encodeJpg(image, quality: quality ?? 90);
+      case ScreenshotFormat.rgba:
+        assert(image.numChannels == 4);
+        // 这里没有深拷贝，
+        return image.buffer.asUint8List();
     }
   }
 

@@ -5,12 +5,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:image/image.dart' as image;
 import 'package:isolate_transformer/isolate_transformer.dart';
-import 'package:listview_screenshot/function.dart';
-import 'package:listview_screenshot/screenshot_format.dart';
 
+import 'function.dart';
+import 'image_buffer.dart';
 import 'image_param.dart';
+import 'screenshot_format.dart';
 import 'supported_check.dart' if (dart.library.js) 'supported_check_web.dart';
 
 class WidgetShot extends SingleChildRenderObjectWidget {
@@ -38,7 +40,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     String workerName = '',
     void Function(int, int)? onProcess,
   }) async {
-    return await _screenshot(
+    final imageBuffer = await _screenshot(
       scrollController: scrollController,
       extraImage: extraImage,
       maxHeight: maxHeight,
@@ -48,6 +50,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       onProcess: onProcess,
       encoder: ScreenshotEncoder(ScreenshotFormat.png),
     );
+    return imageBuffer.bytes;
   }
 
   /// 长截图，边滚动边截图，最后拼接压缩，成jpg格式的二进制数据，
@@ -62,7 +65,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     void Function(int, int)? onProcess,
     int quality = 90,
   }) async {
-    return await _screenshot(
+    final imageBuffer = await _screenshot(
       scrollController: scrollController,
       extraImage: extraImage,
       maxHeight: maxHeight,
@@ -72,6 +75,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       onProcess: onProcess,
       encoder: ScreenshotEncoder(ScreenshotFormat.jpg, quality: quality),
     );
+    return imageBuffer.bytes;
   }
 
   Future<image.Image> screenshotImage({
@@ -83,7 +87,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     String workerName = '',
     void Function(int, int)? onProcess,
   }) async {
-    return await _screenshot(
+    final imageBuffer = await _screenshot(
       scrollController: scrollController,
       extraImage: extraImage,
       maxHeight: maxHeight,
@@ -91,7 +95,9 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       backgroundColor: backgroundColor,
       workerName: workerName,
       onProcess: onProcess,
+      encoder: ScreenshotEncoder(ScreenshotFormat.rgba),
     );
+    return bufferToImage(imageBuffer);
   }
 
   /// 长截图，边滚动边截图，最后拼接压缩，
@@ -101,7 +107,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   /// [backgroundColor] 背景色，
   /// [onProcess] 进度回调，参数两个int，第一个是是当前工作线程收到的图片数量（从1开始，全部收到为0），第二个是算出的总图片数量，item高度有变的话不准，
   /// [encoder] 截图后的编码方式，比如jpg, png, 默认为空就是不编码，返回原始Image,
-  Future<dynamic> _screenshot({
+  Future<ImageBuffer> _screenshot({
     ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
@@ -109,11 +115,11 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     Color? backgroundColor,
     String workerName = '',
     void Function(int, int)? onProcess,
-    ScreenshotEncoder? encoder,
+    required ScreenshotEncoder encoder,
   }) async {
     final isolateTransformer = IsolateTransformer();
-    // 返回原始Image或者编码过的Uint8List,
-    final completer = Completer<dynamic>();
+    // 返回返回合并结果，包含Uint8List,
+    final completer = Completer<ImageBuffer>();
     // 传编码格式和每个截图片段，
     final streamController = StreamController<dynamic>();
     int sHeight =
@@ -142,9 +148,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
           onProcess?.call(event + 1, totalCount);
         }
       } else if (event is Map) {
-        completer.complete(ImageExtension.fromMap(event));
-      } else if (event is Uint8List) {
-        completer.complete(event);
+        completer.complete(ImageBuffer.fromMap(event));
       } else {
         throw StateError('unknown result: ${event.runtimeType}');
       }
@@ -293,8 +297,12 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     }
     double maxScrollExtent = scrollController.position.maxScrollExtent;
     double offset = scrollController.offset;
-    return !nearEqual(maxScrollExtent, offset,
-        scrollController.position.physics.tolerance.distance);
+    return !nearEqual(
+      maxScrollExtent,
+      offset,
+      // ignore: deprecated_member_use
+      scrollController.position.physics.tolerance.distance,
+    );
   }
 
   Future<ui.Image> _screenshotFlutterImage(double pixelRatio) async {

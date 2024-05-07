@@ -2,3 +2,11 @@ include: package:flutter_lints/flutter.yaml
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
+analyzer:
+  errors:
+    asset_directory_does_not_exist: error
+    argument_type_not_assignable: warning
+    prefer_relative_imports: error
+linter:
+  rules:
+    - prefer_relative_imports

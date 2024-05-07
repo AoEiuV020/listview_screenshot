@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
-import 'package:listview_screenshot/screenshot_format.dart';
+
+import 'image_buffer.dart';
+import 'screenshot_format.dart';
 
 @pragma('vm:entry-point')
 Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
@@ -10,7 +12,7 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
   final List<(Image, int, int)> list = [];
   var maxWidth = 0;
   var maxHeight = 0;
-  ScreenshotEncoder? encoder;
+  late ScreenshotEncoder encoder;
   int startTime = DateTime.now().millisecondsSinceEpoch;
   await for (var map in inputStream) {
     if (ScreenshotEncoder.isValidMap(map)) {
@@ -27,7 +29,8 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     } else {
       backgroundColor = null;
     }
-    final currentImage = decodeRgba(map['width'], map['height'], map['bytes']);
+    final imageBuffer = ImageBuffer(map['width'], map['height'], map['bytes']);
+    final currentImage = bufferToImage(imageBuffer);
     if (backgroundColor != null) {
       // 如果有设置背景色，在这里叠加上背景，
       // 这之后实际图片会变成3通道不透明，但还是占用4通道的内存，方便后面统一处理，
@@ -92,11 +95,12 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     log('output: ${result.width}, ${result.height}');
     return true;
   }());
-  if (encoder == null) {
-    yield result.toMap();
-    return;
-  }
-  yield encoder.encode(result);
+  final imageBuffer = ImageBuffer(
+    result.width,
+    result.height,
+    encoder.encode(result),
+  );
+  yield imageBuffer.toMap();
   int encodeTime = DateTime.now().millisecondsSinceEpoch;
   assert(() {
     log('encodeTime: ${encodeTime - mergeTime}');
@@ -104,14 +108,14 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
   }());
 }
 
-Image decodeRgba(int width, int height, Uint8List bytes) {
-  final image = Image.fromBytes(
-    width: width,
-    height: height,
-    bytes: bytes.buffer,
+Image bufferToImage(ImageBuffer imageBuffer) {
+  // 这里会有一次深拷贝，
+  return Image.fromBytes(
+    width: imageBuffer.width,
+    height: imageBuffer.height,
+    bytes: imageBuffer.bytes.buffer,
     numChannels: 4,
   );
-  return image;
 }
 
 Color blendColors(Color? backgroundColor, Color foregroundColor) {
@@ -132,20 +136,4 @@ Color blendColors(Color? backgroundColor, Color foregroundColor) {
           .round();
 
   return ColorRgba8(resultRed, resultGreen, resultBlue, 255);
-}
-
-extension ImageExtension on Image {
-  static Image fromMap(Map<dynamic, dynamic> map) {
-    final width = map['width'];
-    final height = map['height'];
-    final buffer = map['buffer'];
-    return Image.fromBytes(
-        width: width, height: height, bytes: buffer, numChannels: 4);
-  }
-
-  Map<String, dynamic> toMap() => {
-        'width': width,
-        'height': height,
-        'buffer': buffer,
-      };
 }
