@@ -28,11 +28,15 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
       backgroundColor = null;
     }
     final currentImage = decodeRgba(map['width'], map['height'], map['bytes']);
-    for (var y = 0; y < currentImage.height; y++) {
-      for (var x = 0; x < currentImage.width; x++) {
-        final newPixel =
-            blendColors(backgroundColor, currentImage.getPixel(x, y));
-        currentImage.setPixel(x, y, newPixel);
+    if (backgroundColor != null) {
+      // 如果有设置背景色，在这里叠加上背景，
+      // 这之后实际图片会变成3通道不透明，但还是占用4通道的内存，方便后面统一处理，
+      for (var y = 0; y < currentImage.height; y++) {
+        for (var x = 0; x < currentImage.width; x++) {
+          final newPixel =
+              blendColors(backgroundColor, currentImage.getPixel(x, y));
+          currentImage.setPixel(x, y, newPixel);
+        }
       }
     }
     list.add((currentImage, dx, dy));
