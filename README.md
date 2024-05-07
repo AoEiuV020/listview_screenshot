@@ -41,11 +41,12 @@ dart pub add listview_screenshot
       pngBytes = await repaintBoundary.screenshotPng( // 或者调用screenshotImage得到image库的Image对象，
         backgroundColor: Colors.white,
         workerName: 'imageMergeTransform', // web异步线程合并要生成对应js文件，否则不传，
-        onProcess: (p0, p1) {
-          if (p0 == 0) {
+        onProcess: (current, total) {
+          if (current == 0) {
             EasyLoading.show(status: '正在合并截图，请勿操作');
           } else {
-            EasyLoading.showProgress(p0 / p1, status: '正在创建截图，请勿操作, $p0/$p1');
+            EasyLoading.showProgress(current / total,
+                status: '正在创建截图，请勿操作, $current/$total');
           }
         },
       );

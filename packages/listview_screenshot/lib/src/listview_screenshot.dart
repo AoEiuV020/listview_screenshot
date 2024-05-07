@@ -14,6 +14,8 @@ import 'image_param.dart';
 import 'screenshot_format.dart';
 import 'supported_check.dart' if (dart.library.js) 'supported_check_web.dart';
 
+typedef OnProcess = void Function(int current, int total);
+
 class WidgetShot extends SingleChildRenderObjectWidget {
   /// [controller] 属于滚动控件的控制器，
   const WidgetShot({super.key, this.controller, super.child});
@@ -41,7 +43,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
-    void Function(int, int)? onProcess,
+    OnProcess? onProcess,
   }) async {
     final imageBuffer = await _screenshot(
       extraImage: extraImage,
@@ -63,7 +65,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
-    void Function(int, int)? onProcess,
+    OnProcess? onProcess,
     int quality = 90,
   }) async {
     final imageBuffer = await _screenshot(
@@ -84,7 +86,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
-    void Function(int, int)? onProcess,
+    OnProcess? onProcess,
   }) async {
     final imageBuffer = await _screenshot(
       extraImage: extraImage,
@@ -110,7 +112,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     double pixelRatio = 1.0,
     Color? backgroundColor,
     String workerName = '',
-    void Function(int, int)? onProcess,
+    OnProcess? onProcess,
     required ScreenshotEncoder encoder,
   }) async {
     final scrollController = controller;
