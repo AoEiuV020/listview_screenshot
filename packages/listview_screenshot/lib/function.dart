@@ -149,35 +149,3 @@ extension ImageExtension on Image {
         'buffer': buffer,
       };
 }
-
-/// 封装image库中的Image， 区别于flutter库中的Image,
-class ImageImageParam {
-  final Image image;
-  final int dx;
-  final int dy;
-  final Color? color;
-
-  ImageImageParam({
-    required this.image,
-    required this.dx,
-    required this.dy,
-    required this.color,
-  });
-
-  factory ImageImageParam.fromMap(Map map) {
-    final int dx = map['dx'];
-    final int dy = map['dy'];
-    final int? color = map['color'];
-    final Color? backgroundColor;
-    if (color != null) {
-      final argb = (ByteData(4)..setUint32(0, color)).buffer.asUint8List();
-      backgroundColor = ColorUint8.rgba(argb[1], argb[2], argb[3], argb[0]);
-    } else {
-      backgroundColor = null;
-    }
-    final png = map['png'];
-    final currentImage = decodePng(png)!;
-    return ImageImageParam(
-        image: currentImage, dx: dx, dy: dy, color: backgroundColor);
-  }
-}
