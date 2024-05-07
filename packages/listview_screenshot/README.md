@@ -66,6 +66,15 @@ web异步线程合并支持，
 ```shell
 dart compile js imageMergeTransform.dart -o imageMergeTransform.js -O4
 ```
+不过web有个硬伤，html渲染模式无法截图，所以只能使用前加个判断，  
+否则截图方法会抛异常，
+toImage is not supported on the Web    
+```dart
+    if (!WidgetShot.supported) {
+      EasyLoading.showError('html渲染模式无法截图');
+      return;
+    }
+```
 
 ## TODO
 - mac HiDPI截不到高清图，

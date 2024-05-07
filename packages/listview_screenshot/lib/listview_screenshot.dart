@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
@@ -12,9 +11,12 @@ import 'package:listview_screenshot/function.dart';
 import 'package:listview_screenshot/screenshot_format.dart';
 
 import 'image_param.dart';
+import 'supported_check.dart' if (dart.library.js) 'supported_check_web.dart';
 
 class WidgetShot extends SingleChildRenderObjectWidget {
   const WidgetShot({super.key, super.child});
+
+  static final bool supported = isScreenshotSupported();
 
   @override
   RenderObject createRenderObject(BuildContext context) =>

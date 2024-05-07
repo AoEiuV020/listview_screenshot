@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -23,6 +24,10 @@ class _SampleItemListViewState extends State<SampleItemListView> {
   final ScrollController _scrollController = ScrollController();
   int _currentValue = 60;
   void onScreenshot() async {
+    if (!WidgetShot.supported) {
+      EasyLoading.showError('html渲染模式无法截图');
+      return;
+    }
     EasyLoading.show(status: '正在创建截图，请勿操作');
     var context = _shotKey.currentContext!;
     WidgetShotRenderRepaintBoundary repaintBoundary =
@@ -41,7 +46,8 @@ class _SampleItemListViewState extends State<SampleItemListView> {
           }
         },
       );
-    } catch (e) {
+    } catch (e, s) {
+      log(e.toString(), stackTrace: s);
       EasyLoading.dismiss();
       EasyLoading.showError('生成截图失败: ${e.toString()}');
       return;
