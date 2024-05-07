@@ -75,6 +75,17 @@ toImage is not supported on the Web
       return;
     }
 ```
+默认手机浏览器访问就是html渲染模式，所以可以在index.html设置指定强制使用canvaskit模式，  
+[index.html](../../apps/example/web/index.html)  
+```js
+        onEntrypointLoaded: function(engineInitializer) {
+          engineInitializer.initializeEngine({
+            renderer: "canvaskit",
+          }).then(function(appRunner) {
+            appRunner.runApp();
+          });
+        }
+```
 
 ## TODO
 - mac HiDPI截不到高清图，
