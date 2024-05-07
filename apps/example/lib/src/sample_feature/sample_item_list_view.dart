@@ -111,6 +111,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
               onChanged: (double newValue) {
                 setState(() {
                   _currentValue = newValue.round();
+                  EasyLoading.showToast('列表长度： $_currentValue');
                 });
               },
             ),
@@ -128,7 +129,13 @@ class _SampleItemListViewState extends State<SampleItemListView> {
                     final text = List.generate(index, (i) => 'SampleItem $i')
                         .join(',  ');
                     return Container(
-                      color: const Color(0x220000ff),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0x22ff0000), Color(0x220000ff)],
+                        ),
+                      ),
                       child: InkWell(
                         onTap: () {
                           // Navigate to the details page. If the user leaves and returns to

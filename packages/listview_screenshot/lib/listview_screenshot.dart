@@ -151,6 +151,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     }, onError: completer.completeError);
     streamController.add(encoder);
 
+    // 每一页的宽高，
     // ignore: unused_local_variable
     int rWidth = (size.width * pixelRatio).toInt();
     int rHeight = (sHeight * pixelRatio).toInt();
@@ -190,29 +191,31 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
     if (canScroll) {
       logger() {
-        debugPrint(
-            "WidgetShot scrollController.offser = ${scrollController.offset} , scrollController.position.maxScrollExtent = ${scrollController.position.maxScrollExtent}");
+        assert(() {
+          debugPrint(
+              "WidgetShot scrollController.offser = ${scrollController.offset} , scrollController.position.maxScrollExtent = ${scrollController.position.maxScrollExtent}");
+          return true;
+        }());
       }
+
+      logger();
 
       assert(() {
         scrollController.addListener(logger);
         return true;
       }());
 
-      int i = 1;
-
       while (true) {
         if (maxHeight != null && imageHeight >= maxHeight * pixelRatio) {
           break;
         }
-        double lastImageHeight = 0;
+        logger();
 
         if (_canScroll(scrollController)) {
-          int scrollHeight = scrollController.offset.toInt() + sHeight;
+          int nextOffset = scrollController.offset.toInt() + sHeight;
 
-          if (scrollHeight > sHeight * i) {
-            await scrollTo(scrollController, (sHeight * i).toDouble());
-            i++;
+          if (nextOffset <= scrollController.position.maxScrollExtent) {
+            await scrollTo(scrollController, nextOffset.toDouble());
 
             var image = await _screenshotFlutterImage(pixelRatio);
 
@@ -222,11 +225,14 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
               dy: imageHeight,
               color: backgroundColor,
             ));
-            imageHeight += rHeight;
-          } else if (scrollHeight > scrollController.position.maxScrollExtent) {
-            lastImageHeight = scrollController.position.maxScrollExtent +
-                sHeight -
-                sHeight * i;
+            imageHeight += image.height;
+          } else {
+            // 这里是下一页超过了的情况，不能超，所以限制滚动到maxScrollExtent并计算差值dy把图片拼接时上移一些，
+            // 另外虽然滚动到maxScrollExtent了但不代表这就是最后一次了，因为item高度变化时maxScrollExtent也会变，
+            int lastImageHeight = ((scrollController.position.maxScrollExtent -
+                        scrollController.offset) *
+                    pixelRatio)
+                .toInt();
 
             await scrollTo(
                 scrollController, scrollController.position.maxScrollExtent);
@@ -236,13 +242,10 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
             streamController.add(ImageParam(
               image: lastImage,
               dx: 0,
-              dy: (imageHeight - ((size.height - lastImageHeight) * pixelRatio))
-                  .toInt(),
+              dy: imageHeight - (rHeight - lastImageHeight),
               color: backgroundColor,
             ));
-            imageHeight += (lastImageHeight * pixelRatio).toInt();
-          } else {
-            await scrollTo(scrollController, scrollHeight.toDouble());
+            imageHeight += lastImageHeight;
           }
         } else {
           break;
