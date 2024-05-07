@@ -128,38 +128,56 @@ class _SampleItemListViewState extends State<SampleItemListView> {
                   itemBuilder: (BuildContext context, int index) {
                     final text = List.generate(index, (i) => 'SampleItem $i')
                         .join(',  ');
-                    return Container(
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0x22ff0000), Color(0x220000ff)],
-                        ),
-                      ),
-                      child: InkWell(
-                        onTap: () {
-                          // Navigate to the details page. If the user leaves and returns to
-                          // the app after it has been killed while running in the
-                          // background, the navigation stack is restored.
-                          Navigator.restorablePushNamed(
-                            context,
-                            SampleItemDetailsView.routeName,
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircleAvatar(
-                                // Display the Flutter Logo image asset.
-                                foregroundImage: AssetImage(
-                                    'assets/images/flutter_logo.png'),
-                              ),
+                    return Stack(
+                      children: [
+                        // 使用FittedBox来包裹CustomPaint，确保其大小跟随Container
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          child: FittedBox(
+                            fit: BoxFit.fill,
+                            child: CustomPaint(
+                              painter: CirclePainter(),
+                              size: const Size(50, 50),
                             ),
-                            Expanded(child: Text(text)),
-                          ],
+                          ),
                         ),
-                      ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0x22ff0000), Color(0x220000ff)],
+                            ),
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              // Navigate to the details page. If the user leaves and returns to
+                              // the app after it has been killed while running in the
+                              // background, the navigation stack is restored.
+                              Navigator.restorablePushNamed(
+                                context,
+                                SampleItemDetailsView.routeName,
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: CircleAvatar(
+                                    // Display the Flutter Logo image asset.
+                                    foregroundImage: AssetImage(
+                                        'assets/images/flutter_logo.png'),
+                                  ),
+                                ),
+                                Expanded(child: Text(text)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -170,4 +188,21 @@ class _SampleItemListViewState extends State<SampleItemListView> {
       ),
     );
   }
+}
+
+class CirclePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.green.withOpacity(0.2) // 圆环的颜色
+      ..strokeWidth = 1 // 圆环的宽度
+      ..style = PaintingStyle.stroke; // 描边样式
+
+    // 绘制一个椭圆形，使其上下左右都紧贴长方形的边缘
+    final rect = Offset.zero & size; // 用`&`操作符创建一个Rect，其左上角在(0, 0)，大小为屏幕的尺寸
+    canvas.drawOval(rect, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

@@ -89,3 +89,4 @@ toImage is not supported on the Web
 
 ## TODO
 - mac HiDPI截不到高清图，
+- 可能出现一像素空隙，
