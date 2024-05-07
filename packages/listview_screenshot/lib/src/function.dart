@@ -30,7 +30,7 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
       backgroundColor = null;
     }
     final imageBuffer = ImageBuffer(map['width'], map['height'], map['bytes']);
-    final currentImage = bufferToImage(imageBuffer);
+    final currentImage = imageBuffer.bufferToImage();
     if (backgroundColor != null) {
       // 如果有设置背景色，在这里叠加上背景，
       // 这之后实际图片会变成3通道不透明，但还是占用4通道的内存，方便后面统一处理，
@@ -106,16 +106,6 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     log('encodeTime: ${encodeTime - mergeTime}');
     return true;
   }());
-}
-
-Image bufferToImage(ImageBuffer imageBuffer) {
-  // 这里会有一次深拷贝，
-  return Image.fromBytes(
-    width: imageBuffer.width,
-    height: imageBuffer.height,
-    bytes: imageBuffer.bytes.buffer,
-    numChannels: 4,
-  );
 }
 
 Color blendColors(Color? backgroundColor, Color foregroundColor) {

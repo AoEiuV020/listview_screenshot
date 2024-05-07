@@ -1,6 +1,6 @@
 import 'package:isolate_transformer/worker_transformer.dart';
 
-import 'function.dart';
+import 'src/function.dart';
 
 @pragma('vm:entry-point')
 void imageMergeTransformWorkerMain() {
