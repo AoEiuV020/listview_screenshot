@@ -15,23 +15,27 @@ import 'screenshot_format.dart';
 import 'supported_check.dart' if (dart.library.js) 'supported_check_web.dart';
 
 class WidgetShot extends SingleChildRenderObjectWidget {
-  const WidgetShot({super.key, super.child});
+  /// [controller] 属于滚动控件的控制器，
+  const WidgetShot({super.key, this.controller, super.child});
 
   static final bool supported = isScreenshotSupported();
-
+  final ScrollController? controller;
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      WidgetShotRenderRepaintBoundary(context);
+      WidgetShotRenderRepaintBoundary(context, controller);
 }
 
 class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
-  BuildContext context;
+  final BuildContext context;
+  final ScrollController? controller;
 
-  WidgetShotRenderRepaintBoundary(this.context);
+  WidgetShotRenderRepaintBoundary(
+    this.context,
+    this.controller,
+  );
 
   /// 长截图，边滚动边截图，最后拼接压缩，成png格式的二进制数据，
   Future<Uint8List> screenshotPng({
-    ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
     double pixelRatio = 1.0,
@@ -40,7 +44,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     void Function(int, int)? onProcess,
   }) async {
     final imageBuffer = await _screenshot(
-      scrollController: scrollController,
       extraImage: extraImage,
       maxHeight: maxHeight,
       pixelRatio: pixelRatio,
@@ -55,7 +58,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   /// 长截图，边滚动边截图，最后拼接压缩，成jpg格式的二进制数据，
   /// [quality] jpg图片质量，1-100，
   Future<Uint8List> screenshotJpg({
-    ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
     double pixelRatio = 1.0,
@@ -65,7 +67,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     int quality = 90,
   }) async {
     final imageBuffer = await _screenshot(
-      scrollController: scrollController,
       extraImage: extraImage,
       maxHeight: maxHeight,
       pixelRatio: pixelRatio,
@@ -78,7 +79,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
   }
 
   Future<image.Image> screenshotImage({
-    ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
     double pixelRatio = 1.0,
@@ -87,7 +87,6 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     void Function(int, int)? onProcess,
   }) async {
     final imageBuffer = await _screenshot(
-      scrollController: scrollController,
       extraImage: extraImage,
       maxHeight: maxHeight,
       pixelRatio: pixelRatio,
@@ -101,13 +100,11 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
   /// 长截图，边滚动边截图，最后拼接压缩，
   ///
-  /// [scrollController] 属于滚动控件的控制器，
   /// [maxHeight] 粗略的限高，不完全靠谱，
   /// [backgroundColor] 背景色，
   /// [onProcess] 进度回调，参数两个int，第一个是是当前工作线程收到的图片数量（从1开始，全部收到为0），第二个是算出的总图片数量，item高度有变的话不准，
   /// [encoder] 截图后的编码方式，比如jpg, png, 默认为空就是不编码，返回原始Image,
   Future<ImageBuffer> _screenshot({
-    ScrollController? scrollController,
     List<ImageParam> extraImage = const [],
     int? maxHeight,
     double pixelRatio = 1.0,
@@ -116,6 +113,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     void Function(int, int)? onProcess,
     required ScreenshotEncoder encoder,
   }) async {
+    final scrollController = controller;
     final isolateTransformer = IsolateTransformer();
     // 返回返回合并结果，包含Uint8List,
     final completer = Completer<ImageBuffer>();

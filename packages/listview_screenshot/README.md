@@ -23,6 +23,7 @@ dart pub add listview_screenshot
 ```dart
         child: WidgetShot(
           key: _shotKey,
+          controller: _scrollController,
           child: ListView.builder(
             controller: _scrollController,
             // ...
@@ -38,7 +39,6 @@ dart pub add listview_screenshot
     Uint8List pngBytes;
     try {
       pngBytes = await repaintBoundary.screenshotPng( // 或者调用screenshotImage得到image库的Image对象，
-        scrollController: _scrollController,
         backgroundColor: Colors.white,
         workerName: 'imageMergeTransform', // web异步线程合并要生成对应js文件，否则不传，
         onProcess: (p0, p1) {

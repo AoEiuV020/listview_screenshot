@@ -35,7 +35,6 @@ class _SampleItemListViewState extends State<SampleItemListView> {
     Uint8List pngBytes;
     try {
       pngBytes = await repaintBoundary.screenshotPng(
-        scrollController: _scrollController,
         backgroundColor: Colors.white,
         workerName: 'imageMergeTransform',
         onProcess: (p0, p1) {
@@ -118,6 +117,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
             Expanded(
               child: WidgetShot(
                 key: _shotKey,
+                controller: _scrollController,
                 child: ListView.builder(
                   // Providing a restorationId allows the ListView to restore the
                   // scroll position when a user leaves and returns to the app after it
