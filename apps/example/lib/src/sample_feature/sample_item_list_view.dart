@@ -130,19 +130,18 @@ class _SampleItemListViewState extends State<SampleItemListView> {
                         .join(',  ');
                     return Stack(
                       children: [
-                        // 使用FittedBox来包裹CustomPaint，确保其大小跟随Container
                         Positioned(
                           top: 0,
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          child: FittedBox(
-                            fit: BoxFit.fill,
-                            child: CustomPaint(
+                          child: LayoutBuilder(builder: (context, constraints) {
+                            return CustomPaint(
                               painter: CirclePainter(),
-                              size: const Size(50, 50),
-                            ),
-                          ),
+                              size: Size(
+                                  constraints.maxWidth, constraints.maxHeight),
+                            );
+                          }),
                         ),
                         Container(
                           decoration: const BoxDecoration(
