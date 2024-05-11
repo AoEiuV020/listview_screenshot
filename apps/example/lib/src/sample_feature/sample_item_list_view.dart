@@ -41,6 +41,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
           if (current == 0) {
             EasyLoading.show(status: '正在合并截图，请勿操作');
           } else {
+            assert(current <= total);
             EasyLoading.showProgress(current / total,
                 status: '正在创建截图，请勿操作, $current/$total');
           }

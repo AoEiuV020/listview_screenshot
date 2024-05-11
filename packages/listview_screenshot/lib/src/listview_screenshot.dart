@@ -139,13 +139,18 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         if (scrollController == null) {
           totalCount = 1;
         } else {
-          totalCount =
-              (scrollController.position.maxScrollExtent / sHeight).ceil();
+          // 因为最后一页可能是多次截图拼出来的，所以可能event超过理论上的页数，所以total改成event加上剩下的理论页数，
+          totalCount = event +
+              ((scrollController.position.maxScrollExtent -
+                          scrollController.position.pixels) /
+                      sHeight)
+                  .ceil();
         }
         totalCount += extraImage.length;
         if (streamController.isClosed) {
           onProcess?.call(0, totalCount);
         } else {
+          assert(event + 1 <= totalCount);
           onProcess?.call(event + 1, totalCount);
         }
       } else if (event is Map) {
