@@ -30,11 +30,11 @@ scripts:
     exec: dart analyze .
   fix:
     exec: dart fix --apply
+  format:
+    exec: dart format .
   test:
     run: flutter test --no-pub --coverage
     exec:
       concurrency: 1
-    failFast: true
     packageFilters:
-      flutter: true
       dirExists: test
