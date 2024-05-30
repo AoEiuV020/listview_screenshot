@@ -1,28 +1,51 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+# Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
+/pubspec.lock
+**/doc/api/
+.dart_tool/
+build/
+
+# melos
+melos_overrides.yaml
 **/.idea
 **/*.iml
-
 lcov.info
-
 .packages
-*/**/pubspec.lock
 .dart_tool/
-
 benchmark_results.json
 .flutter-plugins
 .flutter-plugins-dependencies
 flutter_export_environment.sh
-# Local Netlify folder
 .netlify
 .DS_Store
-
 docs/**/*.g.dart
-
-*/build/
+**/build/
+**/pubspec.lock
 **/pubspec_overrides.yaml
 **.history/
-
 # dart to js 生成的调试文件，
 *.js.deps
 *.js.map
-
-melos_overrides.yaml

@@ -24,7 +24,7 @@ jobs:
     name: build env
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: init custom env
         run: |
           set -a
@@ -106,7 +106,7 @@ jobs:
     name: Build Flutter (${{ matrix.config }})
     runs-on: ${{ matrix.os }}
     env:
-      APP_DIR: apps/example
+      APP_DIR: example
     strategy:
       matrix:
         name: [ android, android-aab, web, linux, windows, ios, macos ]
@@ -183,7 +183,7 @@ jobs:
         run: |
           type .custom_env >> $env:GITHUB_ENV
           del .custom_env
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'

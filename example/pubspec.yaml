@@ -17,6 +17,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   listview_screenshot:
+    path: ../
 
 dev_dependencies:
   flutter_test:

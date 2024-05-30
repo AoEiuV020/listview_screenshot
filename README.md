@@ -13,9 +13,9 @@ dart pub add listview_screenshot
 ```
 
 ## Usage
-[列表截图示例](./apps/example/lib/src/sample_feature/sample_item_list_view.dart)  
+[列表截图示例](../../apps/example/lib/src/sample_feature/sample_item_list_view.dart)  
 
-核心是 [WidgetShotRenderRepaintBoundary.screenshot](./packages/listview_screenshot/lib/listview_screenshot.dart)  
+核心是 [WidgetShotRenderRepaintBoundary.screenshot](./lib/listview_screenshot.dart)  
 ```dart
   final GlobalKey _shotKey = GlobalKey();
   final ScrollController _scrollController = ScrollController();
@@ -60,7 +60,7 @@ dart pub add listview_screenshot
   }
 ```
 web异步线程合并支持，  
-[imageMergeTransform.dart](./packages/listview_screenshot/web/imageMergeTransform.dart)
+[imageMergeTransform.dart](./web/imageMergeTransform.dart)
 下载到flutter项目web目录下，使用如下代码编译出js文件，  
 生成的js文件名填写到screenshot方法参数workerName，  
 同时生成的js.deps和js.map文件仅调试使用，不必须，  
@@ -77,7 +77,7 @@ toImage is not supported on the Web
     }
 ```
 默认手机浏览器访问就是html渲染模式，所以可以在index.html设置指定强制使用canvaskit模式，  
-[index.html](./apps/example/web/index.html)  
+[index.html](../../apps/example/web/index.html)  
 ```js
         onEntrypointLoaded: function(engineInitializer) {
           engineInitializer.initializeEngine({

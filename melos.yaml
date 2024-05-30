@@ -1,9 +1,11 @@
 name: listview_screenshot
-repository: https://github.com/AoEiuV020/listview_screenshot
 
 packages:
-  - apps/**
-  - packages/**
+  - .
+  - example
+  - apps/*
+  - packages/*
+  - packages/*/example
 
 scripts:
   worker2js:
@@ -22,10 +24,6 @@ scripts:
     exec: dart run build_runner build --delete-conflicting-outputs
     packageFilters:
       dependsOn: build_runner
-  doc:
-    exec: dart doc .
-    packageFilters:
-      ignore: '*example*'
   analyze:
     exec: dart analyze .
   fix:
