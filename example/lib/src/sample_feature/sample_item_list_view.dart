@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:listview_screenshot/listview_screenshot.dart';
+import 'package:super_sliver_list/super_sliver_list.dart';
 
 import '../file/document_saver.dart';
 import '../settings/settings_view.dart';
@@ -120,7 +121,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
               child: WidgetShot(
                 key: _shotKey,
                 controller: _scrollController,
-                child: ListView.builder(
+                child: SuperListView.builder(
                   // Providing a restorationId allows the ListView to restore the
                   // scroll position when a user leaves and returns to the app after it
                   // has been killed while running in the background.
