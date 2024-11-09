@@ -1,9 +1,9 @@
-import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:image/image.dart';
 
 import 'image_buffer.dart';
+import 'logger.dart';
 import 'screenshot_format.dart';
 
 @pragma('vm:entry-point')
@@ -52,16 +52,10 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
       maxHeight = bottom;
     }
     yield index++;
-    assert(() {
-      log('input: ${currentImage.width}, ${currentImage.height}');
-      return true;
-    }());
+    logger.fine('input: ${currentImage.width}, ${currentImage.height}');
   }
   int inputTime = DateTime.now().millisecondsSinceEpoch;
-  assert(() {
-    log('inputTime: ${inputTime - startTime}');
-    return true;
-  }());
+  logger.fine('inputTime: ${inputTime - startTime}');
   Image? image;
   for (var param in list) {
     final (currentImage, dx, dy) = param;
@@ -86,15 +80,9 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
     }
   }
   int mergeTime = DateTime.now().millisecondsSinceEpoch;
-  assert(() {
-    log('mergeTime: ${mergeTime - inputTime}');
-    return true;
-  }());
+  logger.fine('mergeTime: ${mergeTime - inputTime}');
   final result = image ?? Image.empty();
-  assert(() {
-    log('output: ${result.width}, ${result.height}');
-    return true;
-  }());
+  logger.fine('output: ${result.width}, ${result.height}');
   final imageBuffer = ImageBuffer(
     result.width,
     result.height,
@@ -102,10 +90,7 @@ Stream<dynamic> imageMergeTransform(Stream<Map> inputStream) async* {
   );
   yield imageBuffer.toMap();
   int encodeTime = DateTime.now().millisecondsSinceEpoch;
-  assert(() {
-    log('encodeTime: ${encodeTime - mergeTime}');
-    return true;
-  }());
+  logger.fine('encodeTime: ${encodeTime - mergeTime}');
 }
 
 Color blendColors(Color? backgroundColor, Color foregroundColor) {

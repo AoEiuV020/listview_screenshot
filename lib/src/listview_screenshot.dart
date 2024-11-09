@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
@@ -12,6 +12,7 @@ import 'package:isolate_transformer/isolate_transformer.dart';
 import 'function.dart';
 import 'image_buffer.dart';
 import 'image_param.dart';
+import 'logger.dart';
 import 'screenshot_format.dart';
 import 'supported_check.dart' if (dart.library.js) 'supported_check_web.dart';
 
@@ -206,20 +207,16 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
     imageHeight += rHeight;
 
     if (canScroll) {
-      logger() {
-        assert(() {
-          debugPrint(
-              "WidgetShot scrolling: offset = ${scrollController.offset} , max = ${scrollController.position.maxScrollExtent}");
-          return true;
-        }());
+      scrollingLogger() {
+        logger.finest(
+            'WidgetShot scrolling: offset = ${scrollController.offset} , max = ${scrollController.position.maxScrollExtent}');
       }
 
-      logger();
+      scrollingLogger();
 
-      assert(() {
-        scrollController.addListener(logger);
-        return true;
-      }());
+      if (kDebugMode) {
+        scrollController.addListener(scrollingLogger);
+      }
 
       while (true) {
         if (maxHeight != null && imageHeight >= maxHeight * pixelRatio) {
@@ -248,10 +245,9 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
           break;
         }
       }
-      assert(() {
-        scrollController.removeListener(logger);
-        return true;
-      }());
+      if (kDebugMode) {
+        scrollController.removeListener(scrollingLogger);
+      }
     }
 
     extraImage
@@ -280,22 +276,16 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
   Future<void> scrollTo(
       ScrollController scrollController, double offset) async {
-    assert(() {
-      debugPrint(
-          "WidgetShot scroll start: from = ${scrollController.offset} , to = $offset , max = ${scrollController.position.maxScrollExtent}");
-      return true;
-    }());
+    logger.fine(
+        'WidgetShot scrolling: from = ${scrollController.offset} , to = $offset , max = ${scrollController.position.maxScrollExtent}');
     scrollController.jumpTo(offset);
     do {
       await Future.delayed(const Duration(milliseconds: 100));
       // 滚动过头会回弹，要等回弹结束，offset和max稳定下来，
     } while (
         scrollController.offset > scrollController.position.maxScrollExtent);
-    assert(() {
-      debugPrint(
-          "WidgetShot scroll end: offset = ${scrollController.offset} , max = ${scrollController.position.maxScrollExtent}");
-      return true;
-    }());
+    logger.fine(
+        'WidgetShot scroll end: offset = ${scrollController.offset} , max = ${scrollController.position.maxScrollExtent}');
   }
 
   bool _canScroll(ScrollController? scrollController) {

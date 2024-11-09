@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   image: ^4.1.7
   isolate_transformer: ^1.1.0
+  logging: ^1.3.0
 
 dev_dependencies:
   flutter_test:
