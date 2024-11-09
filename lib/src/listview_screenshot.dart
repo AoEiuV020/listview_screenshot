@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
+
 import 'package:image/image.dart' as image;
 import 'package:isolate_transformer/isolate_transformer.dart';
 
