@@ -139,11 +139,16 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         int totalCount;
         if (scrollController == null) {
           totalCount = 1;
+        } else if (scrollController.position.maxScrollExtent <=
+            scrollController.offset) {
+          // max可能小于offset, 就是翻过头了在回弹，
+          // 等于的情况说明刚好最后一页整整的，也是翻完了，总数就是页索引加1，
+          totalCount = event + 1;
         } else {
           // 因为最后一页可能是多次截图拼出来的，所以可能event超过理论上的页数，所以total改成event加上剩下的理论页数，
           totalCount = event +
               ((scrollController.position.maxScrollExtent -
-                          scrollController.position.pixels) /
+                          scrollController.offset) /
                       sHeight)
                   .ceil();
         }
@@ -204,7 +209,7 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
       logger() {
         assert(() {
           debugPrint(
-              "WidgetShot scrollController.offser = ${scrollController.offset} , scrollController.position.maxScrollExtent = ${scrollController.position.maxScrollExtent}");
+              "WidgetShot scrolling: offset = ${scrollController.offset} , max = ${scrollController.position.maxScrollExtent}");
           return true;
         }());
       }
@@ -220,44 +225,25 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
         if (maxHeight != null && imageHeight >= maxHeight * pixelRatio) {
           break;
         }
-        logger();
 
         if (_canScroll(scrollController)) {
-          int nextOffset = scrollController.offset.toInt() + sHeight;
+          final offsetBeforeScroll = scrollController.offset;
+          final nextOffset = scrollController.offset.toInt() + sHeight;
+          // max各种靠不住，所以这里干脆不判断是不是最后一页，直接翻页，然后等回弹等max和offset正确，
+          await scrollTo(scrollController, nextOffset.toDouble());
+          // 滚动后max可能变化， 重新计算偏移量，也就是需要截图的高度，
+          final realMoveOffset =
+              ((scrollController.offset - offsetBeforeScroll) * pixelRatio)
+                  .toInt();
+          var image = await _screenshotFlutterImage(pixelRatio);
 
-          if (nextOffset <= scrollController.position.maxScrollExtent) {
-            await scrollTo(scrollController, nextOffset.toDouble());
-
-            var image = await _screenshotFlutterImage(pixelRatio);
-
-            streamController.add(ImageParam(
-              image: image,
-              dx: 0,
-              dy: imageHeight,
-              color: backgroundColor,
-            ));
-            imageHeight += image.height;
-          } else {
-            // 这里是下一页超过了的情况，不能超，所以限制滚动到maxScrollExtent并计算差值dy把图片拼接时上移一些，
-            // 另外虽然滚动到maxScrollExtent了但不代表这就是最后一次了，因为item高度变化时maxScrollExtent也会变，
-            int lastImageHeight = ((scrollController.position.maxScrollExtent -
-                        scrollController.offset) *
-                    pixelRatio)
-                .toInt();
-
-            await scrollTo(
-                scrollController, scrollController.position.maxScrollExtent);
-
-            var lastImage = await _screenshotFlutterImage(pixelRatio);
-
-            streamController.add(ImageParam(
-              image: lastImage,
-              dx: 0,
-              dy: imageHeight - (rHeight - lastImageHeight),
-              color: backgroundColor,
-            ));
-            imageHeight += lastImageHeight;
-          }
+          streamController.add(ImageParam(
+            image: image,
+            dx: 0,
+            dy: imageHeight - (rHeight - realMoveOffset),
+            color: backgroundColor,
+          ));
+          imageHeight += realMoveOffset;
         } else {
           break;
         }
@@ -294,8 +280,22 @@ class WidgetShotRenderRepaintBoundary extends RenderRepaintBoundary {
 
   Future<void> scrollTo(
       ScrollController scrollController, double offset) async {
+    assert(() {
+      debugPrint(
+          "WidgetShot scroll start: from = ${scrollController.offset} , to = $offset , max = ${scrollController.position.maxScrollExtent}");
+      return true;
+    }());
     scrollController.jumpTo(offset);
-    await Future.delayed(const Duration(milliseconds: 100));
+    do {
+      await Future.delayed(const Duration(milliseconds: 100));
+      // 滚动过头会回弹，要等回弹结束，offset和max稳定下来，
+    } while (
+        scrollController.offset > scrollController.position.maxScrollExtent);
+    assert(() {
+      debugPrint(
+          "WidgetShot scroll end: offset = ${scrollController.offset} , max = ${scrollController.position.maxScrollExtent}");
+      return true;
+    }());
   }
 
   bool _canScroll(ScrollController? scrollController) {
